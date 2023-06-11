@@ -18,23 +18,27 @@ module Langchain::Vectorsearch
     }
     DEFAULT_OPERATOR = "cosine_distance"
 
-    attr_reader :operator, :quoted_table_name
+    attr_reader :operator, :table_name, :namespace_column, :namespace
 
     # @param url [String] The URL of the PostgreSQL database
     # @param index_name [String] The name of the table to use for the index
     # @param llm [Object] The LLM client to use
     # @param api_key [String] The API key for the Vectorsearch DB (not used for PostgreSQL)
-    def initialize(url:, index_name:, llm:, api_key: nil)
+    # @param namespace_column [String] The name of the column to use for the namespace
+    # @param namespace [String] The namespace to use for the index when inserting/querying
+    def initialize(url:, index_name:, llm:, api_key: nil, namespace_column: nil, namespace: nil)
       require "pg"
       require "pgvector"
+      require "openai"
 
       @client = ::PG.connect(url)
       registry = ::PG::BasicTypeRegistry.new.define_default_types
       ::Pgvector::PG.register_vector(registry)
       @client.type_map_for_results = PG::BasicTypeMapForResults.new(@client, registry: registry)
 
-      @index_name = index_name
-      @quoted_table_name = @client.quote_ident(index_name)
+      @table_name = index_name
+      @namespace_column = namespace_column || "namespace"
+      @namespace = namespace
       @operator = OPERATORS[DEFAULT_OPERATOR]
 
       super(llm: llm)
@@ -45,11 +49,16 @@ module Langchain::Vectorsearch
     # @return [PG::Result] The response from the database
     def add_texts(texts:)
       data = texts.flat_map do |text|
-        [text, llm.embed(text: text)]
+        [text, llm.embed(text: text), namespace]
       end
-      values = texts.length.times.map { |i| "($#{2 * i + 1}, $#{2 * i + 2})" }.join(",")
-      client.exec_params(
-        "INSERT INTO #{quoted_table_name} (content, vectors) VALUES #{values};",
+      values = texts.length.times.map { |i| "($#{3 * i + 1}, $#{3 * i + 2}, $#{3 * i + 3})" }.join(",")
+
+      sql = "INSERT INTO #{table_name} (content, vectors, #{namespace_column}) VALUES #{values};"
+
+      client.prepare("add_texts", sql)
+
+      client.exec_prepared(
+        "add_texts",
         data
       )
     end
@@ -58,15 +67,18 @@ module Langchain::Vectorsearch
     # @return [PG::Result] The response from the database
     def create_default_schema
       client.exec("CREATE EXTENSION IF NOT EXISTS vector;")
-      client.exec(
+      client.prepare(
+        "create_default_schema",
         <<~SQL
-          CREATE TABLE IF NOT EXISTS #{quoted_table_name} (
+          CREATE TABLE IF NOT EXISTS #{table_name} (
             id serial PRIMARY KEY,
             content TEXT,
-            vectors VECTOR(#{default_dimension})
+            vectors VECTOR(#{default_dimension}),
+            #{namespace_column} TEXT DEFAULT NULL
           );
         SQL
       )
+      client.exec_prepared("create_default_schema")
     end
 
     # Search for similar texts in the index
@@ -91,9 +103,15 @@ module Langchain::Vectorsearch
       result = client.transaction do |conn|
         conn.exec("SET LOCAL ivfflat.probes = 10;")
         query = <<~SQL
-          SELECT id, content FROM #{quoted_table_name} ORDER BY vectors #{operator} $1 ASC LIMIT $2;
+          SELECT id, content FROM #{table_name} 
+            WHERE #{namespace ? "#{namespace_column} = $3" : "1=1"}
+            ORDER BY vectors #{operator} $1 ASC 
+            LIMIT $2;
         SQL
-        conn.exec_params(query, [embedding, k])
+
+        conn.prepare("similarity_search_by_vector", query)
+
+        conn.exec_prepared("similarity_search_by_vector", [embedding, k, namespace].compact)
       end
 
       result.to_a

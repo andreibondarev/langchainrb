@@ -50,6 +50,21 @@ if ENV["POSTGRES_URL"]
         expect(command.result_status).to eq(::PG::PGRES_COMMAND_OK)
         expect(command.cmd_tuples).to eq(2)
       end
+
+      it "adds texts with a namespace" do
+        count_query = "SELECT count(*) FROM products WHERE namespace = 'test_namespace';"
+        count = client.exec_params(count_query)
+        expect(count[0]["count"].to_i).to eq(0)
+
+        allow(subject).to receive(:namespace).and_return("test_namespace")
+        command = subject.add_texts(texts: ["Hello World", "Hello World"])
+        expect(command).to be_a(::PG::Result)
+        expect(command.result_status).to eq(::PG::PGRES_COMMAND_OK)
+        expect(command.cmd_tuples).to eq(2)
+
+        count = client.exec_params(count_query)
+        expect(count[0]["count"].to_i).to eq(2)
+      end
     end
 
     describe "#similarity_search" do
@@ -84,6 +99,14 @@ if ENV["POSTGRES_URL"]
         result = subject.similarity_search(query: "earth")
         expect(result[0]["content"]).to eq("something about earth")
       end
+
+      it "searches for similar texts using a namespace" do
+        namespace = "foo_namespace"
+        client.exec_params("INSERT INTO products (content, vectors, namespace) VALUES ($1, $2, $3);", ["a namespaced chunk of text", 1536.times.map { 0 }, namespace])
+        allow(subject).to receive(:namespace).and_return(namespace)
+        result = subject.similarity_search(query: "earth")
+        expect(result[0]["content"]).to eq("a namespaced chunk of text")
+      end
     end
 
     describe "#similarity_search_by_vector" do
@@ -103,8 +126,13 @@ if ENV["POSTGRES_URL"]
       end
 
       it "should use the cosine distance operator by default" do
-        expect_any_instance_of(PG::Connection).to receive(:exec_params) do |_, query|
+        expect_any_instance_of(PG::Connection).to receive(:prepare) do |_, name, query|
+          expect(name).to eq("similarity_search_by_vector")
           expect(query).to include("ORDER BY vectors <=> $1")
+          "prepared_statement"
+        end
+        expect_any_instance_of(PG::Connection).to receive(:exec_prepared) do |_, name, data|
+          expect(name).to eq("similarity_search_by_vector")
           []
         end
         subject.similarity_search_by_vector(embedding: 1536.times.map { 0 })
