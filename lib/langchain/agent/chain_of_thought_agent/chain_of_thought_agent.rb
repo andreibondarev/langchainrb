@@ -52,6 +52,7 @@ module Langchain::Agent
         question: question,
         tools: tools
       )
+      Langchain.logger.info("[#{self.class.name}]".light_blue + ": Agent prompt is\n#{prompt}")
 
       final_response = nil
       max_iterations.times do
@@ -70,11 +71,16 @@ module Langchain::Agent
           action_input = response.match(/Action Input: "?(.*)"?/)&.send(:[], -1)
 
           # Find the Tool and call `execute`` with action_input as the input
-          tool = tools.find { |tool| tool.tool_name == action.strip }
-          Langchain.logger.info("[#{self.class.name}]".red + ": Invoking \"#{tool.class}\" Tool with \"#{action_input}\"")
+          if (tool = tools.find { |tool| tool.tool_name.downcase == action.strip.downcase })
+            Langchain.logger.info("[#{self.class.name}]".red + ": Invoking \"#{tool.class}\" Tool with \"#{action_input}\"")
 
-          # Call `execute` with action_input as the input
-          result = tool.execute(input: action_input)
+            # Call `execute` with action_input as the input
+            result = tool.execute(input: action_input)
+          else
+            Langchain.logger.info("[#{self.class.name}]".red + ": Tool \"#{action}\" not found.")
+
+            result = "Tool \"#{action}\" not found. I need to try a different tool."
+          end
 
           # Append the Observation to the prompt
           prompt += if prompt.end_with?("Observation:")
