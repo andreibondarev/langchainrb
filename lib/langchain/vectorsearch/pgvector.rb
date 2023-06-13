@@ -13,12 +13,12 @@ module Langchain::Vectorsearch
 
     # The operators supported by the PostgreSQL vector search adapter
     OPERATORS = {
-      "cosine_distance" => "<=>",
-      "euclidean_distance" => "<->"
+      "cosine_distance" => "cosine",
+      "euclidean_distance" => "euclidean"
     }
     DEFAULT_OPERATOR = "cosine_distance"
 
-    attr_reader :operator, :table_name, :namespace_column, :namespace
+    attr_reader :db, :operator, :table_name, :namespace_column, :namespace, :documents_table
 
     # @param url [String] The URL of the PostgreSQL database
     # @param index_name [String] The name of the table to use for the index
@@ -27,16 +27,15 @@ module Langchain::Vectorsearch
     # @param namespace_column [String] The name of the column to use for the namespace
     # @param namespace [String] The namespace to use for the index when inserting/querying
     def initialize(url:, index_name:, llm:, api_key: nil, namespace_column: nil, namespace: nil)
-      require "pg"
+      depends_on "sequel"
+      require "sequel"
+      depends_on "pgvector"
       require "pgvector"
-      require "openai"
 
-      @client = ::PG.connect(url)
-      registry = ::PG::BasicTypeRegistry.new.define_default_types
-      ::Pgvector::PG.register_vector(registry)
-      @client.type_map_for_results = PG::BasicTypeMapForResults.new(@client, registry: registry)
+      @db = Sequel.connect(url)
 
       @table_name = index_name
+
       @namespace_column = namespace_column || "namespace"
       @namespace = namespace
       @operator = OPERATORS[DEFAULT_OPERATOR]
@@ -44,41 +43,40 @@ module Langchain::Vectorsearch
       super(llm: llm)
     end
 
+    def documents_model
+      Class.new(Sequel::Model(table_name.to_sym)) do
+        plugin :pgvector, :vectors
+      end
+    end
+
     # Add a list of texts to the index
     # @param texts [Array<String>] The texts to add to the index
     # @return [PG::Result] The response from the database
     def add_texts(texts:)
       data = texts.flat_map do |text|
-        [text, llm.embed(text: text), namespace]
+        embedding = llm.embed(text: text)
+        {
+          :content => text,
+          :vectors => ::Pgvector.encode(embedding),
+          namespace_column.to_sym => namespace
+        }
       end
-      values = texts.length.times.map { |i| "($#{3 * i + 1}, $#{3 * i + 2}, $#{3 * i + 3})" }.join(",")
 
-      sql = "INSERT INTO #{table_name} (content, vectors, #{namespace_column}) VALUES #{values};"
-
-      client.prepare("add_texts", sql)
-
-      client.exec_prepared(
-        "add_texts",
-        data
-      )
+      documents_model.multi_insert(data, return: :primary_key)
     end
 
     # Create default schema
     # @return [PG::Result] The response from the database
     def create_default_schema
-      client.exec("CREATE EXTENSION IF NOT EXISTS vector;")
-      client.prepare(
-        "create_default_schema",
-        <<~SQL
-          CREATE TABLE IF NOT EXISTS #{table_name} (
-            id serial PRIMARY KEY,
-            content TEXT,
-            vectors VECTOR(#{default_dimension}),
-            #{namespace_column} TEXT DEFAULT NULL
-          );
-        SQL
-      )
-      client.exec_prepared("create_default_schema")
+      db.run "CREATE EXTENSION IF NOT EXISTS vector"
+      namespace = namespace_column
+      vector_dimension = default_dimension
+      db.create_table? table_name.to_sym do
+        primary_key :id
+        text :content
+        column :vectors, "vector(#{vector_dimension})"
+        text namespace.to_sym, default: nil
+      end
     end
 
     # Search for similar texts in the index
@@ -100,21 +98,11 @@ module Langchain::Vectorsearch
     # @param k [Integer] The number of top results to return
     # @return [Array<Hash>] The results of the search
     def similarity_search_by_vector(embedding:, k: 4)
-      result = client.transaction do |conn|
-        conn.exec("SET LOCAL ivfflat.probes = 10;")
-        query = <<~SQL
-          SELECT id, content FROM #{table_name} 
-            WHERE #{namespace ? "#{namespace_column} = $3" : "1=1"}
-            ORDER BY vectors #{operator} $1 ASC 
-            LIMIT $2;
-        SQL
-
-        conn.prepare("similarity_search_by_vector", query)
-
-        conn.exec_prepared("similarity_search_by_vector", [embedding, k, namespace].compact)
+      db.transaction do # BEGIN
+        documents_model
+          .nearest_neighbors(:vectors, embedding, distance: operator).limit(k)
+          .where(namespace_column.to_sym => namespace)
       end
-
-      result.to_a
     end
 
     # Ask a question and return the answer
@@ -124,7 +112,7 @@ module Langchain::Vectorsearch
       search_results = similarity_search(query: question)
 
       context = search_results.map do |result|
-        result["content"].to_s
+        result.content.to_s
       end
       context = context.join("\n---\n")
 
