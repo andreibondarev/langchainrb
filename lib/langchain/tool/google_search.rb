@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 module Langchain::Tool
-  class SerpApi < Base
+  class GoogleSearch < Base
     #
-    # Wrapper around SerpAPI
+    # Wrapper around Google Serp SPI
     #
     # Gem requirements: gem "google_search_results", "~> 2.0.0"
     #
     # Usage:
-    # search = Langchain::Tool::SerpApi.new(api_key: "YOUR_API_KEY")
+    # search = Langchain::Tool::GoogleSearch.new(api_key: "YOUR_API_KEY")
     # search.execute(input: "What is the capital of France?")
     #
 
-    NAME = "search"
+    NAME = "google_search"
 
     description <<~DESC
       A wrapper around Google Search.
@@ -26,10 +26,10 @@ module Langchain::Tool
     attr_reader :api_key
 
     #
-    # Initializes the SerpAPI tool
+    # Initializes the Google Search tool
     #
-    # @param api_key [String] SerpAPI API key
-    # @return [Langchain::Tool::SerpApi] SerpAPI tool
+    # @param api_key [String] Search API key
+    # @return [Langchain::Tool::GoogleSearch] Google search tool
     #
     def initialize(api_key:)
       depends_on "google_search_results"
@@ -54,7 +54,7 @@ module Langchain::Tool
     # @return [String] Answer
     #
     def execute(input:)
-      Langchain.logger.info("[#{self.class.name}]".light_blue + ": Executing \"#{input}\"")
+      Langchain.logger.info("Executing \"#{input}\"", for: self.class)
 
       hash_results = execute_search(input: input)
 
@@ -72,7 +72,7 @@ module Langchain::Tool
     # @return [Hash] hash_results JSON
     #
     def execute_search(input:)
-      GoogleSearch
+      ::GoogleSearch
         .new(q: input, serp_api_key: api_key)
         .get_hash
     end

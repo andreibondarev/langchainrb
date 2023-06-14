@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Langchain::Chat do
+RSpec.describe Langchain::Conversation do
   let(:llm) { double("Langchain::LLM::OpenaAI") }
 
   subject { described_class.new(llm: llm) }
@@ -34,6 +34,22 @@ RSpec.describe Langchain::Chat do
     let(:examples) { [{role: "user", content: "Hello"}, {role: "ai", content: "Hi"}] }
     let(:prompt) { "How are you doing?" }
     let(:response) { "I'm doing well. How about you?" }
+
+    context "with stream: true option and block passed in" do
+      let(:block) { proc { |chunk| print(chunk) } }
+      let(:conversation) { described_class.new(llm: llm, &block) }
+
+      it "messages the model and yields the response" do
+        expect(llm).to receive(:chat).with(
+          context: nil,
+          examples: [],
+          messages: [{role: "user", content: prompt}],
+          &block
+        ).and_return(response)
+
+        expect(conversation.message(prompt)).to eq(response)
+      end
+    end
 
     context "with simple prompt" do
       it "messages the model and returns the response" do
@@ -79,6 +95,21 @@ RSpec.describe Langchain::Chat do
           messages: [
             {role: "user", content: prompt}
           ]
+        ).and_return(response)
+
+        expect(subject.message(prompt)).to eq(response)
+      end
+    end
+
+    context "with options" do
+      subject { described_class.new(llm: llm, temperature: 0.7) }
+
+      it "messages the model with passed options" do
+        expect(llm).to receive(:chat).with(
+          context: nil,
+          examples: [],
+          messages: [{role: "user", content: prompt}],
+          temperature: 0.7
         ).and_return(response)
 
         expect(subject.message(prompt)).to eq(response)

@@ -264,7 +264,7 @@ Agents are semi-autonomous bots that can respond to user questions and use avail
 Add `gem "ruby-openai"`, `gem "eqn"`, and `gem "google_search_results"` to your Gemfile
 
 ```ruby
-search_tool = Langchain::Tool::SerpApi.new(api_key: ENV["SERPAPI_API_KEY"])
+search_tool = Langchain::Tool::GoogleSearch.new(api_key: ENV["SERPAPI_API_KEY"])
 calculator = Langchain::Tool::Calculator.new
 
 openai = Langchain::LLM::OpenAI.new(api_key: ENV["OPENAI_API_KEY"])
@@ -275,7 +275,7 @@ agent = Langchain::Agent::ChainOfThoughtAgent.new(
 )
 
 agent.tools
-# => ["search", "calculator"]
+# => ["google_search", "calculator"]
 ```
 ```ruby
 agent.run(question: "How many full soccer fields would be needed to cover the distance between NYC and DC in a straight line?")
@@ -308,7 +308,8 @@ agent.run(question: "How many users have a name with length greater than 5 in th
 | "calculator" | Useful for getting the result of a math expression |                                                               | `gem "eqn", "~> 1.6.5"`                   |
 | "database"   | Useful for querying a SQL database |                                                               | `gem "sequel", "~> 5.68.0"`                   |
 | "ruby_code_interpreter" | Interprets Ruby expressions             |                                                               | `gem "safe_ruby", "~> 1.0.4"`             |
-| "search"     | A wrapper around Google Search                     | `ENV["SERPAPI_API_KEY"]` (https://serpapi.com/manage-api-key) | `gem "google_search_results", "~> 2.0.0"` |
+| "google_search"     | A wrapper around Google Search                     | `ENV["SERPAPI_API_KEY"]` (https://serpapi.com/manage-api-key) | `gem "google_search_results", "~> 2.0.0"` |
+| "weather"  | Calls Open Weather API to retrieve the current weather        |      `ENV["OPEN_WEATHER_API_KEY]` (https://home.openweathermap.org/api_keys)               | `gem "open-weather-ruby-client", "~> 0.3.0"`    |
 | "wikipedia"  | Calls Wikipedia API to retrieve the summary        |                                                               | `gem "wikipedia-client", "~> 1.17.0"`     |
 
 #### Loaders 🚚

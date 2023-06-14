@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    langchainrb (0.5.4)
+    langchainrb (0.5.5)
       colorize (~> 0.8.1)
       tiktoken_ruby (~> 0.0.5)
 
@@ -135,6 +135,7 @@ GEM
       activesupport (>= 3.0)
       graphql
     hashery (2.1.2)
+    hashie (5.0.0)
     hnswlib (0.8.1)
     httparty (0.21.0)
       mini_mime (>= 1.0.0)
@@ -167,6 +168,11 @@ GEM
       racc (~> 1.4)
     nokogiri (1.14.3-x86_64-linux)
       racc (~> 1.4)
+    open-weather-ruby-client (0.3.0)
+      activesupport
+      faraday (>= 1.0.0)
+      faraday_middleware
+      hashie
     parallel (1.23.0)
     parser (3.2.2.1)
       ast (~> 2.4.1)
@@ -318,6 +324,7 @@ DEPENDENCIES
   langchainrb!
   milvus (~> 0.9.0)
   nokogiri (~> 1.13)
+  open-weather-ruby-client (~> 0.3.0)
   pdf-reader (~> 1.4)
   pg (~> 1.5)
   pgvector (~> 0.2.1)

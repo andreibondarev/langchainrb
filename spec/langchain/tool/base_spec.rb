@@ -4,7 +4,7 @@ RSpec.describe Langchain::Tool::Base do
   describe "#validate_tools!" do
     let(:calculator_tool) { Langchain::Tool::Calculator.new }
     let(:sql_db_tool) { Langchain::Tool::Database.new(connection_string: "mock:///") }
-    let(:search_tool) { Langchain::Tool::SerpApi.new(api_key: "123") }
+    let(:search_tool) { Langchain::Tool::GoogleSearch.new(api_key: "123") }
 
     it "does not raise an error" do
       expect {

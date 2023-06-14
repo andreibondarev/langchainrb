@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [0.5.5] - 2023-06-12
+- [BREAKING] Rename `Langchain::Chat` to `Langchain::Conversation`
+- 🛠️ Tools
+  - Introducing `Langchain::Tool::Weather`, a tool that calls Open Weather API to retrieve the current weather
+
 ## [0.5.4] - 2023-06-10
 - 🔍 Vectorsearch
   - Introducing support for HNSWlib

@@ -66,6 +66,7 @@ module Langchain::LLM
     # @param context [String] The context of the conversation
     # @param examples [Array] Examples of messages provide model with
     # @param options extra parameters passed to OpenAI::Client#chat
+    # @param block [Block] Pass the block to stream the response
     # @return [String] The chat completion
     #
     def chat(prompt: "", messages: [], context: "", examples: [], **options)
@@ -75,11 +76,19 @@ module Langchain::LLM
       parameters[:messages] = compose_chat_messages(prompt: prompt, messages: messages, context: context, examples: examples)
       parameters[:max_tokens] = validate_max_tokens(parameters[:messages], parameters[:model])
 
+      if (streaming = block_given?)
+        parameters[:stream] = proc do |chunk, _bytesize|
+          yield chunk.dig("choices", 0, "delta", "content")
+        end
+      end
+
       response = client.chat(parameters: parameters)
 
-      raise "Chat completion failed: #{response}" if response.dig("error")
+      raise "Chat completion failed: #{response}" if !response.empty? && response.dig("error")
 
-      response.dig("choices", 0, "message", "content")
+      unless streaming
+        response.dig("choices", 0, "message", "content")
+      end
     end
 
     #

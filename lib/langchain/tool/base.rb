@@ -9,7 +9,7 @@ module Langchain::Tool
   #
   # - {Langchain::Tool::Calculator}: Calculate the result of a math expression
   # - {Langchain::Tool::RubyCodeInterpretor}: Runs ruby code
-  # - {Langchain::Tool::Search}: search on Google (via SerpAPI)
+  # - {Langchain::Tool::GoogleSearch}: search on Google (via SerpAPI)
   # - {Langchain::Tool::Wikipedia}: search on Wikipedia
   #
   # == Usage
@@ -30,13 +30,13 @@ module Langchain::Tool
   #     agent = Langchain::Agent::ChainOfThoughtAgent.new(
   #       llm: :openai, # or :cohere, :hugging_face, :google_palm or :replicate
   #       llm_api_key: ENV["OPENAI_API_KEY"],
-  #       tools: ["search", "calculator", "wikipedia"]
+  #       tools: ["google_search", "calculator", "wikipedia"]
   #     )
   #
   # 4. Confirm that the Agent is using the Tools you passed in:
   #
   #     agent.tools
-  #     # => ["search", "calculator", "wikipedia"]
+  #     # => ["google_search", "calculator", "wikipedia"]
   #
   # == Adding Tools
   #
@@ -55,6 +55,12 @@ module Langchain::Tool
     #
     def tool_name
       self.class.const_get(:NAME)
+    end
+
+    def self.logger_options
+      {
+        color: :light_blue
+      }
     end
 
     #

@@ -2,7 +2,7 @@
 
 RSpec.describe Langchain::Agent::ChainOfThoughtAgent do
   let(:calculator) { Langchain::Tool::Calculator.new }
-  let(:search) { Langchain::Tool::SerpApi.new(api_key: "123") }
+  let(:search) { Langchain::Tool::GoogleSearch.new(api_key: "123") }
   let(:wikipedia) { Langchain::Tool::Wikipedia.new }
 
   let(:openai) { Langchain::LLM::OpenAI.new(api_key: "123") }
@@ -29,7 +29,7 @@ RSpec.describe Langchain::Agent::ChainOfThoughtAgent do
     let(:third_prompt) { second_prompt + second_response + "\nObservation: #{calculator_response}\nThought:" }
     let(:final_prompt) { third_prompt + third_response + "\nObservation: #{calculator_response_2}\nThought:" }
 
-    let(:first_response) { " I need to find the average temperature in Miami, Florida in May and then calculate the square root of that number.\nAction: search\nAction Input: average temperature in Miami, Florida in May" }
+    let(:first_response) { " I need to find the average temperature in Miami, Florida in May and then calculate the square root of that number.\nAction: google_search\nAction Input: average temperature in Miami, Florida in May" }
     let(:search_response) { "May Weather in Miami Florida, United States. Daily high temperatures increase by 3°F, from 83°F to 86°F, rarely falling below 79°F or exceeding 90° ..." }
     let(:second_response) { " I need to calculate the average temperature\nAction: calculator\nAction Input: (83+86+79+90)/4\n\n" }
     let(:calculator_response) { "84.5" }
@@ -76,6 +76,12 @@ RSpec.describe Langchain::Agent::ChainOfThoughtAgent do
     it "runs the agent" do
       expect(subject.run(question: question)).to eq(final_answer)
     end
+
+    it "raises an error after max_iterations" do
+      allow(subject).to receive(:max_iterations).and_return(1)
+
+      expect { subject.run(question: question) }.to raise_error(Langchain::Agent::ChainOfThoughtAgent::MaxIterationsReachedError)
+    end
   end
 
   describe "#create_prompt" do
@@ -92,13 +98,13 @@ RSpec.describe Langchain::Agent::ChainOfThoughtAgent do
         Today is May 12, 2023 and you can use tools to get new information. Answer the following questions as best you can using the following tools:
 
         calculator: Useful for getting the result of a math expression.  The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.
-        search: A wrapper around Google Search.  Useful for when you need to answer questions about current events. Always one of the first options when you need to find information on internet.  Input should be a search query.
+        google_search: A wrapper around Google Search.  Useful for when you need to answer questions about current events. Always one of the first options when you need to find information on internet.  Input should be a search query.
 
         Use the following format:
 
         Question: the input question you must answer
         Thought: you should always think about what to do
-        Action: the action to take, should be one of [calculator, search]
+        Action: the action to take, should be one of [calculator, google_search]
         Action Input: the input to the action
         Observation: the result of the action
         ... (this Thought/Action/Action Input/Observation can repeat N times)

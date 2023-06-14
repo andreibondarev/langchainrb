@@ -10,5 +10,10 @@ module Langchain::Agent
   #
   # @abstract
   class Base
+    def self.logger_options
+      {
+        color: :red
+      }
+    end
   end
 end

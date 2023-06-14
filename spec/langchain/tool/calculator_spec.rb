@@ -11,7 +11,7 @@ RSpec.describe Langchain::Tool::Calculator do
     it "calls Serp API when eqn throws an error" do
       allow(Eqn::Calculator).to receive(:calc).and_raise(Eqn::ParseError)
 
-      allow_any_instance_of(Langchain::Tool::SerpApi).to receive(:execute_search)
+      allow_any_instance_of(Langchain::Tool::GoogleSearch).to receive(:execute_search)
         .with(input: "2+2")
         .and_return({answer_box: {to: 4}})
 
