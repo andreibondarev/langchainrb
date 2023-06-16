@@ -8,7 +8,7 @@ module Langchain::Vectorsearch
     # Gem requirements: gem "pgvector", "~> 0.2"
     #
     # Usage:
-    # pgvector = Langchain::Vectorsearch::Pgvector.new(url:, index_name:, llm:, llm_api_key:)
+    # pgvector = Langchain::Vectorsearch::Pgvector.new(url:, index_name:, llm:, namespace_column: nil, namespace: nil)
     #
 
     # The operators supported by the PostgreSQL vector search adapter
@@ -23,10 +23,9 @@ module Langchain::Vectorsearch
     # @param url [String] The URL of the PostgreSQL database
     # @param index_name [String] The name of the table to use for the index
     # @param llm [Object] The LLM client to use
-    # @param api_key [String] The API key for the Vectorsearch DB (not used for PostgreSQL)
     # @param namespace_column [String] The name of the column to use for the namespace
     # @param namespace [String] The namespace to use for the index when inserting/querying
-    def initialize(url:, index_name:, llm:, api_key: nil, namespace_column: nil, namespace: nil)
+    def initialize(url:, index_name:, llm:, namespace_column: nil, namespace: nil)
       depends_on "sequel"
       require "sequel"
       depends_on "pgvector"
