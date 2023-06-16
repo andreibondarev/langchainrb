@@ -45,11 +45,11 @@ module Langchain::Prompt
     end
 
     #
-    # Save the object to a file in JSON format.
+    # Save the object to a file in JSON or YAML format.
     #
     # @param file_path [String, Pathname] The path to the file to save the object to
     #
-    # @raise [ArgumentError] If file_path doesn't end with .json
+    # @raise [ArgumentError] If file_path doesn't end with .json or .yaml or .yml
     #
     # @return [void]
     #

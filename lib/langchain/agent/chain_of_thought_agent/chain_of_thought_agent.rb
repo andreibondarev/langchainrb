@@ -113,11 +113,11 @@ module Langchain::Agent
       )
     end
 
-    # Load the PromptTemplate from the JSON file
+    # Load the PromptTemplate from the YAML file
     # @return [PromptTemplate] PromptTemplate instance
     def prompt_template
       @template ||= Langchain::Prompt.load_from_path(
-        file_path: Langchain.root.join("langchain/agent/chain_of_thought_agent/chain_of_thought_agent_prompt.json")
+        file_path: Langchain.root.join("langchain/agent/chain_of_thought_agent/chain_of_thought_agent_prompt.yaml")
       )
     end
 

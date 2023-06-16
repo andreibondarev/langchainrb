@@ -1,0 +1,21 @@
+_type: prompt
+template: |
+  Given an input question, create a syntactically correct {dialect} query to run, then return the query in valid SQL.
+  Never query for all the columns from a specific table, only ask for a the few relevant columns given the question.
+  Pay attention to use only the column names that you can see in the schema description.
+  Be careful to not query for columns that do not exist.
+  Pay attention to which column is in which table.
+  Also, qualify column names with the table name when needed.
+
+  Only use the tables listed below.
+  {schema}
+
+  Use the following format:
+
+  Question: {question}
+
+  SQLQuery:
+input_variables:
+  - dialect
+  - schema
+  - question

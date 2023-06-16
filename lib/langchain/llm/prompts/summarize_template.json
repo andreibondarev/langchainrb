@@ -1,5 +1,0 @@
-{
-  "_type": "prompt",
-  "input_variables": ["text"],
-  "template": "Write a concise summary of the following:\n\n{text}\n\nCONCISE SUMMARY:"
-}

@@ -94,14 +94,14 @@ RSpec.describe Langchain::Agent::ChainOfThoughtAgent do
         subject.send(:create_prompt,
           question: "What is the meaning of life?",
           tools: subject.tools)
-      ).to eq <<~PROMPT.chomp
+      ).to eq <<~PROMPT
         Today is May 12, 2023 and you can use tools to get new information. Answer the following questions as best you can using the following tools:
-
+ 
         calculator: Useful for getting the result of a math expression.  The input to this tool should be a valid mathematical expression that could be executed by a simple calculator.
         google_search: A wrapper around Google Search.  Useful for when you need to answer questions about current events. Always one of the first options when you need to find information on internet.  Input should be a search query.
-
+    
         Use the following format:
-
+    
         Question: the input question you must answer
         Thought: you should always think about what to do
         Action: the action to take, should be one of [calculator, google_search]
@@ -112,7 +112,7 @@ RSpec.describe Langchain::Agent::ChainOfThoughtAgent do
         Final Answer: the final answer to the original input question
 
         Begin!
-
+    
         Question: What is the meaning of life?
         Thought:
       PROMPT

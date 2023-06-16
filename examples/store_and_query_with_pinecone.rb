@@ -3,7 +3,7 @@ require "langchain"
 # gem install pinecone
 # or add `gem "pinecone"` to your Gemfile
 
-# Instantiate the Qdrant client
+# Instantiate the Pinecone client
 pinecone = Langchain::Vectorsearch::Pinecone.new(
   environment: ENV["PINECONE_ENVIRONMENT"],
   api_key: ENV["PINECONE_API_KEY"],
@@ -12,6 +12,7 @@ pinecone = Langchain::Vectorsearch::Pinecone.new(
 )
 
 # Create the default schema.
+# If you are using the free Pinecone tier, ensure there is not an existing schema/index
 pinecone.create_default_schema
 
 # Set up an array of text strings
@@ -20,7 +21,7 @@ recipes = [
   "Heat oven to 190C/fan 170C/gas 5. Heat 1 tbsp oil and the butter in a frying pan, then add the onion and fry for 5 mins until softened. Cool slightly. Tip the sausagemeat, lemon zest, breadcrumbs, apricots, chestnuts and thyme into a bowl. Add the onion and cranberries, and mix everything together with your hands, adding plenty of pepper and a little salt. Cut each chicken breast into three fillets lengthwise and season all over with salt and pepper. Heat the remaining oil in the frying pan, and fry the chicken fillets quickly until browned, about 6-8 mins. Roll out two-thirds of the pastry to line a 20-23cm springform or deep loose-based tart tin. Press in half the sausage mix and spread to level. Then add the chicken pieces in one layer and cover with the rest of the sausage. Press down lightly. Roll out the remaining pastry. Brush the edges of the pastry with beaten egg and cover with the pastry lid. Pinch the edges to seal, then trim. Brush the top of the pie with egg, then roll out the trimmings to make holly leaf shapes and berries. Decorate the pie and brush again with egg. Set the tin on a baking sheet and bake for 50-60 mins, then cool in the tin for 15 mins. Remove and leave to cool completely. Serve with a winter salad and pickles."
 ]
 
-# Add data to the index. Weaviate will use OpenAI to generate embeddings behind the scene.
+# Add data to the index. Pinecone will use OpenAI to generate embeddings behind the scene.
 pinecone.add_texts(
   texts: recipes
 )
@@ -33,10 +34,10 @@ pinecone.similarity_search(
 
 # Interact with your index through Q&A
 pinecone.ask(
-  question: "What is the best recipe for chicken?"
+  question: "What is a good recipe for chicken?"
 )
 
-# Generate your an embedding and search by it
+# Generate an embedding and search by it
 openai = Langchain::LLM::OpenAI.new(api_key: ENV["OPENAI_API_KEY"])
 embedding = openai.embed(text: "veggie")
 

@@ -1,0 +1,11 @@
+_type: prompt
+template: |
+  Given an input question and results of a SQL query, look at the results and return the answer. Use the following format:
+  Question: {question}
+  The SQL query: {sql_query}
+  Result of the SQLQuery: {results}
+  Final answer: Final answer here
+input_variables:
+  - question
+  - sql_query
+  - results
