@@ -23,9 +23,8 @@ module Langchain::Vectorsearch
     # @param url [String] The URL of the PostgreSQL database
     # @param index_name [String] The name of the table to use for the index
     # @param llm [Object] The LLM client to use
-    # @param namespace_column [String] The name of the column to use for the namespace
     # @param namespace [String] The namespace to use for the index when inserting/querying
-    def initialize(url:, index_name:, llm:, namespace_column: nil, namespace: nil)
+    def initialize(url:, index_name:, llm:, namespace: nil)
       depends_on "sequel"
       require "sequel"
       depends_on "pgvector"
@@ -35,7 +34,7 @@ module Langchain::Vectorsearch
 
       @table_name = index_name
 
-      @namespace_column = namespace_column || "namespace"
+      @namespace_column = "namespace"
       @namespace = namespace
       @operator = OPERATORS[DEFAULT_OPERATOR]
 
