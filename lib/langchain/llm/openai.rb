@@ -112,22 +112,12 @@ module Langchain::LLM
     def chat(prompt: "", messages: [], context: "", examples: [], **options)
       raise ArgumentError.new(":prompt or :messages argument is expected") if prompt.empty? && messages.empty?
 
-      parameters = compose_parameters DEFAULTS[:chat_completion_model_name], options
-      parameters[:messages] = compose_chat_messages(prompt: prompt, messages: messages, context: context, examples: examples)
-      parameters[:max_tokens] = validate_max_tokens(parameters[:messages], parameters[:model])
+      parameters = compose_chat_parameters(DEFAULTS[:chat_completion_model_name], prompt: prompt, messages: messages, context: context, examples: examples, **options)
 
-      if (streaming = block_given?)
-        parameters[:stream] = proc do |chunk, _bytesize|
-          yield chunk.dig("choices", 0, "delta", "content")
-        end
-      end
-
-      response = client.chat(parameters: parameters)
-
-      raise "Chat completion failed: #{response}" if !response.empty? && response.dig("error")
-
-      unless streaming
-        response.dig("choices", 0, "message", "content")
+      if block_given?
+        stream_response(parameters) { |chunk| yield chunk.dig("choices", 0, "delta", "content") }
+      else
+        complete_response(parameters)
       end
     end
 
@@ -148,6 +138,26 @@ module Langchain::LLM
 
     private
 
+    def compose_chat_parameters(model, prompt:, messages:, context:, examples:, **options)
+      parameters = compose_parameters(model, options)
+      parameters[:messages] = compose_chat_messages(prompt: prompt, messages: messages, context: context, examples: examples)
+      parameters[:max_tokens] = validate_max_tokens(parameters[:messages], parameters[:model])
+      parameters
+    end
+
+    def stream_response(parameters)
+      client.chat(parameters: parameters) do |chunk, _bytesize|
+        yield chunk.dig("choices", 0, "delta", "content")
+      end
+    end
+
+    def complete_response(parameters)
+      response = client.chat(parameters: parameters)
+      raise "Chat completion failed: #{response}" if !response.empty? && response.dig("error")
+
+      response.dig("choices", 0, "message", "content")
+    end
+
     def compose_parameters(model, params)
       default_params = {model: model, temperature: DEFAULTS[:temperature]}
 
@@ -159,24 +169,38 @@ module Langchain::LLM
     def compose_chat_messages(prompt:, messages:, context:, examples:)
       history = []
 
-      history.concat transform_messages(examples) unless examples.empty?
-
-      history.concat transform_messages(messages) unless messages.empty?
-
-      unless context.nil? || context.empty?
-        history.reject! { |message| message[:role] == "system" }
-        history.prepend({role: "system", content: context})
-      end
-
-      unless prompt.empty?
-        if history.last && history.last[:role] == "user"
-          history.last[:content] += "\n#{prompt}"
-        else
-          history.append({role: "user", content: prompt})
-        end
-      end
+      add_examples_to_history(examples, history)
+      add_messages_to_history(messages, history)
+      add_context_to_history(context, history)
+      add_prompt_to_history(prompt, history)
 
       history
+    end
+
+    def add_examples_to_history(examples, history)
+      history.concat(transform_messages(examples)) unless examples.empty?
+    end
+
+    def add_messages_to_history(messages, history)
+      history.concat(transform_messages(messages)) unless messages.empty?
+    end
+
+    def add_context_to_history(context, history)
+      return if context.nil? || context.empty?
+
+      history.reject! { |message| message[:role] == "system" }
+      history.prepend({role: "system", content: context})
+    end
+
+    def add_prompt_to_history(prompt, history)
+      return if prompt.empty?
+
+      last_user_message = history.last && history.last[:role] == "user"
+      if last_user_message
+        history.last[:content] += "\n#{prompt}"
+      else
+        history.append({role: "user", content: prompt})
+      end
     end
 
     def transform_messages(messages)
