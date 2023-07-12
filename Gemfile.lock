@@ -189,7 +189,7 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.5.3)
-    pgvector (0.2.0)
+    pgvector (0.2.1)
     pinecone (0.1.71)
       dry-struct (~> 1.6.0)
       dry-validation (~> 1.10.0)
@@ -334,7 +334,7 @@ DEPENDENCIES
   open-weather-ruby-client (~> 0.3.0)
   pdf-reader (~> 1.4)
   pg (~> 1.5)
-  pgvector (~> 0.2)
+  pgvector (~> 0.2.1)
   pinecone (~> 0.1.6)
   pry-byebug (~> 3.10.0)
   qdrant-ruby (~> 0.9.0)
@@ -353,4 +353,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.4.0
+   2.3.22
