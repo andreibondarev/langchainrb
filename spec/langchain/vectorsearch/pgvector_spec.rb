@@ -47,7 +47,44 @@ if ENV["POSTGRES_URL"]
       it "adds texts" do
         command = subject.add_texts(texts: ["Hello World", "Hello World"])
         expect(command).to be_a(::PG::Result)
-        expect(command.result_status).to eq(::PG::PGRES_COMMAND_OK)
+        expect(command.result_status).to eq(::PG::PGRES_TUPLES_OK)
+        expect(command.cmd_tuples).to eq(2)
+      end
+    end
+
+    describe "#update_texts" do
+      let(:text_embedding_mapping) do
+        {
+          "Hello World" => 1536.times.map { rand },
+          "Hello World".reverse => 1536.times.map { rand }
+        }
+      end
+
+      before do
+        text_embedding_mapping.each do |input, embedding|
+          allow_any_instance_of(
+            OpenAI::Client
+          ).to receive(:embeddings)
+            .with(
+              parameters: {
+                model: "text-embedding-ada-002",
+                input: input
+              }
+            )
+            .and_return({
+              "data" => [
+                {"embedding" => embedding}
+              ]
+            })
+        end
+      end
+
+      it "updates texts" do
+        add_result = subject.add_texts(texts: ["Hello World", "Hello World"])
+        ids = add_result.values.flatten
+        command = subject.update_texts(texts: ["Hello World", "Hello World".reverse], ids: ids)
+        expect(command).to be_a(::PG::Result)
+        expect(command.result_status).to eq(::PG::PGRES_TUPLES_OK)
         expect(command.cmd_tuples).to eq(2)
       end
     end

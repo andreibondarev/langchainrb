@@ -40,18 +40,51 @@ module Langchain::Vectorsearch
       super(llm: llm)
     end
 
-    # Add a list of texts to the index
+    # Upsert a list of texts to the index
     # @param texts [Array<String>] The texts to add to the index
-    # @return [PG::Result] The response from the database
-    def add_texts(texts:)
-      data = texts.flat_map do |text|
-        [text, llm.embed(text: text)]
+    # @param ids [Array<Integer>] The ids of the objects to add to the index, in the same order as the texts
+    # @return [PG::Result] The response from the database including the ids of
+    # the added or updated texts.
+    def upsert_texts(texts:, ids:)
+      data = texts.zip(ids).flat_map do |(text, id)|
+        [id, text, llm.embed(text: text)]
       end
-      values = texts.length.times.map { |i| "($#{2 * i + 1}, $#{2 * i + 2})" }.join(",")
+      values = texts.length.times.map { |i| "($#{3 * i + 1}, $#{3 * i + 2}, $#{3 * i + 3})" }.join(",")
+      # see https://github.com/pgvector/pgvector#storing
       client.exec_params(
-        "INSERT INTO #{quoted_table_name} (content, vectors) VALUES #{values};",
+        "INSERT INTO #{quoted_table_name} (id, content, vectors) VALUES
+#{values} ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, vectors = EXCLUDED.vectors RETURNING id;",
         data
       )
+    end
+
+    # Add a list of texts to the index
+    # @param texts [Array<String>] The texts to add to the index
+    # @param ids [Array<String>] The ids to add to the index, in the same order as the texts
+    # @return [PG::Result] The response from the database including the ids of
+    # the added texts.
+    def add_texts(texts:, ids: nil)
+      if ids.nil? || ids.empty?
+        data = texts.flat_map do |text|
+          [text, llm.embed(text: text)]
+        end
+        values = texts.length.times.map { |i| "($#{2 * i + 1}, $#{2 * i + 2})" }.join(",")
+        client.exec_params(
+          "INSERT INTO #{quoted_table_name} (content, vectors) VALUES #{values} RETURNING id;",
+          data
+        )
+      else
+        upsert_texts(texts: texts, ids: ids)
+      end
+    end
+
+    # Update a list of ids and corresponding texts to the index
+    # @param texts [Array<String>] The texts to add to the index
+    # @param ids [Array<String>] The ids to add to the index, in the same order as the texts
+    # @return [PG::Result] The response from the database including the ids of
+    # the updated texts.
+    def update_texts(texts:, ids:)
+      upsert_texts(texts: texts, ids: ids)
     end
 
     # Create default schema
