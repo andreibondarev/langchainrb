@@ -82,6 +82,7 @@ module Langchain
   module Chunker
     autoload :Base, "langchain/chunker/base"
     autoload :Text, "langchain/chunker/text"
+    autoload :RecursiveText, "langchain/chunker/recursive_text"
   end
 
   module Tool
