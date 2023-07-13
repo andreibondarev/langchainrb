@@ -313,6 +313,21 @@ RSpec.describe Langchain::LLM::OpenAI do
       it "sends prompt as message and additional params and returns a response message" do
         expect(subject.chat(prompt: prompt, model: model, temperature: temperature)).to eq("As an AI language model, I don't have feelings, but I'm functioning well. How can I assist you today?")
       end
+
+      it "complete response" do
+        subject.complete_response = true
+        expect(subject.chat(prompt: prompt, model: model, temperature: temperature)).to be_a Hash
+      end
+
+      context "functions" do
+        let(:parameters) { {parameters: {messages: history, model: model, temperature: temperature, functions: [{foo: :bar}]}} }
+
+        it "functions will be passed on options as accessor" do
+          subject.complete_response = true
+          subject.functions = [{foo: :bar}]
+          expect(subject.chat(prompt: prompt, model: model, temperature: temperature)).to be_a Hash
+        end
+      end
     end
 
     context "with failed API call" do

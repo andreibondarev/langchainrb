@@ -264,7 +264,7 @@ GEM
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
     ruby-next-core (0.15.3)
-    ruby-openai (4.0.0)
+    ruby-openai (4.1.0)
       faraday (>= 1)
       faraday-multipart (>= 1)
     ruby-progressbar (1.13.0)
@@ -344,7 +344,7 @@ DEPENDENCIES
   roo (~> 2.10.0)
   rspec (~> 3.0)
   rubocop
-  ruby-openai (~> 4.0.0)
+  ruby-openai (~> 4.1.0)
   safe_ruby (~> 1.0.4)
   sequel (~> 5.68.0)
   standardrb

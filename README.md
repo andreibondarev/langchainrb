@@ -145,6 +145,27 @@ openai.embed(text: "foo bar")
 openai.complete(prompt: "What is the meaning of life?")
 ```
 
+##### Open AI Function calls support
+
+Conversation support
+
+```ruby
+chat = Langchain::Conversation.new(llm: openai)
+```
+```ruby
+chat.set_context("You are the climate bot")
+chat.set_functions(functions)
+```
+
+qdrant:
+
+```ruby
+client.llm.functions = functions
+client.llm.complete_response = true
+```
+
+`complete_response` will return the entire choices data from the gpt response
+
 #### Cohere
 Add `gem "cohere-ruby", "~> 0.9.3"` to your Gemfile.
 

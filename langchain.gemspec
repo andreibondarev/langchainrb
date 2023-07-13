@@ -64,7 +64,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "replicate-ruby", "~> 0.2.2"
   spec.add_development_dependency "qdrant-ruby", "~> 0.9.0"
   spec.add_development_dependency "roo", "~> 2.10.0"
-  spec.add_development_dependency "ruby-openai", "~> 4.0.0"
+  spec.add_development_dependency "ruby-openai", "~> 4.1.0"
   spec.add_development_dependency "safe_ruby", "~> 1.0.4"
   spec.add_development_dependency "sequel", "~> 5.68.0"
   spec.add_development_dependency "weaviate-ruby", "~> 0.8.3"

@@ -37,6 +37,11 @@ module Langchain
       @block = block
     end
 
+    def set_functions(functions)
+      @llm.functions = functions
+      @llm.complete_response = true
+    end
+
     # Set the context of the conversation. Usually used to set the model's persona.
     # @param message [String] The context of the conversation
     def set_context(message)
