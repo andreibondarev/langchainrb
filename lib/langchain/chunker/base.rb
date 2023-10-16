@@ -13,6 +13,57 @@ module Langchain
     # - {Langchain::Chunker::Semantic}
     # - {Langchain::Chunker::Sentence}
     class Base
+      LANG_SEPARATORS = {
+        ".js" => [
+          # Split along function definitions
+          "\nfunction ",
+          "\nconst ",
+          "\nlet ",
+          "\nvar ",
+          "\nclass ",
+          # Split along control flow statements
+          "\nif ",
+          "\nfor ",
+          "\nwhile ",
+          "\nswitch ",
+          "\ncase ",
+          "\ndefault ",
+          # Split by the normal type of lines
+          "\n\n",
+          "\n",
+          " ",
+          ""
+        ],
+        ".py" => [
+          # First, try to split along class definitions
+          "\nclass ",
+          "\ndef ",
+          "\n\tdef ",
+          # Now split by the normal type of lines
+          "\n\n",
+          "\n",
+          " ",
+          ""
+        ],
+        ".rb" => [
+          # Split along method definitions
+          "\ndef ",
+          "\nclass ",
+          # Split along control flow statements
+          "\nif ",
+          "\nunless ",
+          "\nwhile ",
+          "\nfor ",
+          "\ndo ",
+          "\nbegin ",
+          "\nrescue ",
+          # Split by the normal type of lines
+          "\n\n",
+          "\n",
+          " ",
+          ""
+        ]
+      }
     end
   end
 end
