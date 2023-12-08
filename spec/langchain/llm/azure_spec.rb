@@ -224,12 +224,18 @@ RSpec.describe Langchain::LLM::Azure do
 
     context "with prompt and parameters" do
       let(:parameters) do
-        {parameters: {n: 1, model: "gpt-3.5-turbo", messages: [{content: "Hello World", role: "user"}], temperature: 1.0, max_tokens: 4086}}
+        {parameters: {n: 1, model: "gpt-3.5-turbo", messages: [{content: "Hello World", role: "user"}], temperature: 1.0, max_tokens: 16}}
       end
 
       it "returns a completion" do
-        response = subject.complete(prompt: "Hello World", model: "gpt-3.5-turbo", temperature: 1.0)
+        response = subject.complete(
+          prompt: "Hello World",
+          model: "gpt-3.5-turbo",
+          temperature: 1.0,
+          max_tokens: 16 # `max_tokens` can be passed in and overwritten.
+        )
 
+        expect(response.completion_tokens).to eq(16)
         expect(response.completion).to eq("The meaning of life is subjective and can vary from person to person.")
       end
     end

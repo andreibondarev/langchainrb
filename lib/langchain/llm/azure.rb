@@ -64,7 +64,7 @@ module Langchain::LLM
       parameters = compose_parameters @defaults[:completion_model_name], params
 
       parameters[:messages] = compose_chat_messages(prompt: prompt)
-      parameters[:max_tokens] = validate_max_tokens(parameters[:messages], parameters[:model])
+      parameters[:max_tokens] = params[:max_tokens] || validate_max_tokens(parameters[:messages], parameters[:model])
 
       response = with_api_error_handling do
         chat_client.chat(parameters: parameters)
