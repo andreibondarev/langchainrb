@@ -12,7 +12,10 @@ RSpec.describe Langchain::Utils::TokenLength::OpenAIValidator do
         it "raises an error" do
           expect {
             subject
-          }.to raise_error(Langchain::Utils::TokenLength::TokenLimitExceeded, "This model's maximum context length is 4097 tokens, but the given text is 45000 tokens long.")
+          }.to raise_error(
+            Langchain::Utils::TokenLength::TokenLimitExceeded,
+            "This model's maximum context length is 4097 tokens, but the given text is 45000 tokens long."
+          )
         end
       end
 
@@ -20,12 +23,26 @@ RSpec.describe Langchain::Utils::TokenLength::OpenAIValidator do
         let(:content) { "lorem ipsum" * 100 }
         let(:model) { "gpt-4" }
 
-        it "does not raise an error" do
-          expect { subject }.not_to raise_error
+        context "when the token_counter is tiktoken" do
+          it "does not raise an error" do
+            expect { subject }.not_to raise_error
+          end
+
+          it "returns the correct max_tokens" do
+            expect(subject).to eq(7892)
+          end
         end
 
-        it "returns the correct max_tokens" do
-          expect(subject).to eq(7892)
+        context "when the token_counter is openai" do
+          subject { described_class.validate_max_tokens!(content, model, token_counter: :openai) }
+
+          it "does not raise an error" do
+            expect { subject }.not_to raise_error
+          end
+
+          it "returns the correct max_tokens" do
+            expect(subject).to eq(7987)
+          end
         end
       end
 
@@ -141,34 +158,70 @@ RSpec.describe Langchain::Utils::TokenLength::OpenAIValidator do
       }]
     }
 
-    it "returns the correct token length for gpt-3.5-turbo-0301" do
-      expect(
-        described_class.token_length_from_messages(example_messages, "gpt-3.5-turbo-0301")
-      ).to eq(127)
+    context "when the token counter is tiktoken" do
+      it "returns the correct token length for gpt-3.5-turbo-0301" do
+        expect(
+          described_class.token_length_from_messages(example_messages, "gpt-3.5-turbo-0301")
+        ).to eq(127)
+      end
+
+      it "returns the correct token length for gpt-3.5-turbo-0613" do
+        expect(
+          described_class.token_length_from_messages(example_messages, "gpt-3.5-turbo-0613")
+        ).to eq(129)
+      end
+
+      it "returns the correct token length for gpt-3.5-turbo" do
+        expect(
+          described_class.token_length_from_messages(example_messages, "gpt-3.5-turbo")
+        ).to eq(129)
+      end
+
+      it "returns the correct token length for gpt-4-0613" do
+        expect(
+          described_class.token_length_from_messages(example_messages, "gpt-4-0613")
+        ).to eq(129)
+      end
+
+      it "returns the correct token length for gpt-4" do
+        expect(
+          described_class.token_length_from_messages(example_messages, "gpt-4")
+        ).to eq(129)
+      end
     end
 
-    it "returns the correct token length for gpt-3.5-turbo-0613" do
-      expect(
-        described_class.token_length_from_messages(example_messages, "gpt-3.5-turbo-0613")
-      ).to eq(129)
-    end
+    context "when the token counter is openai" do
+      let(:options) { {token_counter: :openai} }
 
-    it "returns the correct token length for gpt-3.5-turbo" do
-      expect(
-        described_class.token_length_from_messages(example_messages, "gpt-3.5-turbo")
-      ).to eq(129)
-    end
+      it "returns the correct token length for gpt-3.5-turbo-0301" do
+        expect(
+          described_class.token_length_from_messages(example_messages, "gpt-3.5-turbo-0301", options)
+        ).to eq(141)
+      end
 
-    it "returns the correct token length for gpt-4-0613" do
-      expect(
-        described_class.token_length_from_messages(example_messages, "gpt-4-0613")
-      ).to eq(129)
-    end
+      it "returns the correct token length for gpt-3.5-turbo-0613" do
+        expect(
+          described_class.token_length_from_messages(example_messages, "gpt-3.5-turbo-0613", options)
+        ).to eq(143)
+      end
 
-    it "returns the correct token length for gpt-4" do
-      expect(
-        described_class.token_length_from_messages(example_messages, "gpt-4")
-      ).to eq(129)
+      it "returns the correct token length for gpt-3.5-turbo" do
+        expect(
+          described_class.token_length_from_messages(example_messages, "gpt-3.5-turbo", options)
+        ).to eq(143)
+      end
+
+      it "returns the correct token length for gpt-4-0613" do
+        expect(
+          described_class.token_length_from_messages(example_messages, "gpt-4-0613", options)
+        ).to eq(143)
+      end
+
+      it "returns the correct token length for gpt-4" do
+        expect(
+          described_class.token_length_from_messages(example_messages, "gpt-4", options)
+        ).to eq(143)
+      end
     end
   end
 end

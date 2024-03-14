@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "openai"
 require "tiktoken_ruby"
 
 module Langchain
@@ -61,6 +62,7 @@ module Langchain
         #
         # @param text [String] The text to calculate the token length for
         # @param model_name [String] The model name to validate against
+        # @param options [Hash] The options to customize the token length calculation
         # @return [Integer] The token length of the text
         #
         def self.token_length(text, model_name, options = {})
@@ -69,8 +71,12 @@ module Langchain
             model_name = "text-embedding-ada-002"
           end
 
-          encoder = Tiktoken.encoding_for_model(model_name)
-          encoder.encode(text).length
+          if options[:token_counter] == :openai
+            ::OpenAI.rough_token_count(text)
+          else
+            encoder = Tiktoken.encoding_for_model(model_name)
+            encoder.encode(text).length
+          end
         end
 
         def self.token_limit(model_name)
@@ -95,8 +101,6 @@ module Langchain
         # @return [Integer] The token length of the messages
         #
         def self.token_length_from_messages(messages, model_name, options = {})
-          encoding = Tiktoken.encoding_for_model(model_name)
-
           if ["gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k-0613", "gpt-4-0314", "gpt-4-32k-0314", "gpt-4-0613", "gpt-4-32k-0613"].include?(model_name)
             tokens_per_message = 3
             tokens_per_name = 1
@@ -119,7 +123,7 @@ module Langchain
           messages.each do |message|
             num_tokens += tokens_per_message
             message.each do |key, value|
-              num_tokens += encoding.encode(value).length
+              num_tokens += token_length(value, model_name, options)
               num_tokens += tokens_per_name if ["name", :name].include?(key)
             end
           end

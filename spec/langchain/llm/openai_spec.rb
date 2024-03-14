@@ -18,9 +18,35 @@ RSpec.describe Langchain::LLM::OpenAI do
       end
 
       it "passes correct options to the client" do
-        # openai-ruby sets global configuration options here: https://github.com/alexrudall/ruby-openai/blob/main/lib/openai/client.rb
+        # openai-ruby sets global configuration options here:
+        # https://github.com/alexrudall/ruby-openai/blob/main/lib/openai/client.rb
         result = subject
         expect(result.client.uri_base).to eq("http://localhost:1234")
+      end
+    end
+
+    context "when default_options are passed" do
+      let(:subject) do
+        described_class.new(
+          api_key: "123",
+          default_options: {temperature: 0.5, token_counter: :openai}
+        )
+      end
+
+      it "overrides the default values" do
+        default_options = Langchain::LLM::OpenAI::DEFAULTS.dup
+        default_options[:temperature] = 0.5
+        default_options[:token_counter] = :openai
+
+        expect(subject.defaults).to eq(default_options)
+      end
+    end
+
+    context "when default_options are not passed" do
+      let(:subject) { described_class.new(api_key: "123") }
+
+      it "uses the default values" do
+        expect(subject.defaults).to eq(Langchain::LLM::OpenAI::DEFAULTS)
       end
     end
   end
