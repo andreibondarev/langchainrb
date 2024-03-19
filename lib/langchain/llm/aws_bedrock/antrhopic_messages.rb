@@ -18,7 +18,7 @@ module Langchain::LLM
       top_k: 250,
       top_p: 0.999,
       stop_sequences: ["AI"],
-      anthropic_version: "bedrock-2023-05-31",
+      anthropic_version: "bedrock-2023-05-31"
     }.freeze
 
     def initialize(completion_model: DEFAULTS[:completion_model_name], embedding_model: DEFAULTS[:embedding_model_name], aws_client_options: {}, default_options: {})
