@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    langchainrb (0.9.4)
+    langchainrb (0.10.0)
       activesupport (>= 7.0.8)
       baran (~> 0.1.9)
       colorize (~> 1.1.0)

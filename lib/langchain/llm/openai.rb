@@ -17,7 +17,7 @@ module Langchain::LLM
       n: 1,
       temperature: 0.0,
       chat_completion_model_name: "gpt-3.5-turbo",
-      embeddings_model_name: "text-embedding-ada-002"
+      embeddings_model_name: "text-embedding-3-small"
     }.freeze
 
     EMBEDDING_SIZES = {
@@ -53,7 +53,8 @@ module Langchain::LLM
       text:,
       model: defaults[:embeddings_model_name],
       encoding_format: nil,
-      user: nil
+      user: nil,
+      dimensions: EMBEDDING_SIZES.fetch(model.to_sym, nil)
     )
       raise ArgumentError.new("text argument is required") if text.empty?
       raise ArgumentError.new("model argument is required") if model.empty?
@@ -61,11 +62,14 @@ module Langchain::LLM
 
       parameters = {
         input: text,
-        model: model,
-        dimensions: default_dimension
+        model: model
       }
       parameters[:encoding_format] = encoding_format if encoding_format
       parameters[:user] = user if user
+
+      if ["text-embedding-3-small", "text-embedding-3-large"].include?(model)
+        parameters[:dimensions] = EMBEDDING_SIZES[model.to_sym] if EMBEDDING_SIZES.key?(model.to_sym)
+      end
 
       validate_max_tokens(text, parameters[:model])
 

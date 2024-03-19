@@ -2,7 +2,7 @@
 
 # RubyCodeInterpreter does not work with Ruby 3.3;
 # https://github.com/ukutaht/safe_ruby/issues/4
-if RUBY_VERSION <= "3.2"
+if RUBY_VERSION <= "3.2.0"
   module Langchain::Tool
     class RubyCodeInterpreter < Base
       #

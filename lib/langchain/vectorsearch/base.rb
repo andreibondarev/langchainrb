@@ -124,6 +124,11 @@ module Langchain::Vectorsearch
       raise NotImplementedError, "#{self.class.name} does not support updating texts"
     end
 
+    # Method supported by Vectorsearch DB to delete a list of texts from the index
+    def remove_texts(...)
+      raise NotImplementedError, "#{self.class.name} does not support deleting texts"
+    end
+
     # Method supported by Vectorsearch DB to search for similar texts in the index
     def similarity_search(...)
       raise NotImplementedError, "#{self.class.name} does not support similarity search"

@@ -75,6 +75,17 @@ module Langchain::Vectorsearch
       es_client.bulk(body: body)
     end
 
+    # Remove a list of texts from the index
+    # @param ids [Array<Integer>] The list of ids to delete
+    # @return [Elasticsearch::Response] from the Elasticsearch server
+    def remove_texts(ids: [])
+      body = ids.map do |id|
+        {delete: {_index: index_name, _id: id}}
+      end
+
+      es_client.bulk(body: body)
+    end
+
     # Create the index with the default schema
     # @return [Elasticsearch::Response] Index creation
     def create_default_schema

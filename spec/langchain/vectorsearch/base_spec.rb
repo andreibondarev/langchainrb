@@ -41,6 +41,12 @@ RSpec.describe Langchain::Vectorsearch::Base do
     end
   end
 
+  describe "#remove_texts" do
+    it "raises an error" do
+      expect { subject.remove_texts }.to raise_error(NotImplementedError)
+    end
+  end
+
   describe "#similarity_search" do
     it "raises an error" do
       expect { subject.similarity_search }.to raise_error(NotImplementedError)

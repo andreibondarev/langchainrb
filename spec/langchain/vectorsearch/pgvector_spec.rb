@@ -29,7 +29,7 @@ if ENV["POSTGRES_URL"]
           .with(
             parameters: {
               dimensions: 1536,
-              model: "text-embedding-ada-002",
+              model: "text-embedding-3-small",
               input: "Hello World"
             }
           )
@@ -63,7 +63,7 @@ if ENV["POSTGRES_URL"]
             .with(
               parameters: {
                 dimensions: 1536,
-                model: "text-embedding-ada-002",
+                model: "text-embedding-3-small",
                 input: input
               }
             )
@@ -106,7 +106,7 @@ if ENV["POSTGRES_URL"]
           .with(
             parameters: {
               dimensions: 1536,
-              model: "text-embedding-ada-002",
+              model: "text-embedding-3-small",
               input: "earth"
             }
           )
@@ -177,7 +177,7 @@ if ENV["POSTGRES_URL"]
           .with(
             parameters: {
               dimensions: 1536,
-              model: "text-embedding-ada-002",
+              model: "text-embedding-3-small",
               input: question
             }
           )

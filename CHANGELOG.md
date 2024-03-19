@@ -1,5 +1,12 @@
 ## [Unreleased]
-- `Langchain::LLM::Ollama` can now `#summarize`
+
+## [0.10.0]
+- Delete `Langchain::Conversation` class
+
+## [0.9.5]
+- Now using OpenAI's "text-embedding-3-small" model to generate embeddings
+- Added `remove_texts(ids:)` method to Qdrant and Chroma
+- Add Ruby 3.3 support
 
 ## [0.9.4]
 - New `Ollama#summarize()` method

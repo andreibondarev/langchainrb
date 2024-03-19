@@ -28,7 +28,11 @@ RSpec.describe Langchain::LLM::OpenAI do
   describe "#embed" do
     let(:result) { [-0.007097351, 0.0035200312, -0.0069700438] }
     let(:parameters) do
-      {parameters: {input: "Hello World", model: "text-embedding-ada-002", dimensions: 1536}}
+      {parameters: {
+        input: "Hello World",
+        model: "text-embedding-3-small",
+        dimensions: 1536
+      }}
     end
     let(:response) do
       {
@@ -56,7 +60,7 @@ RSpec.describe Langchain::LLM::OpenAI do
       response = subject.embed(text: "Hello World")
 
       expect(response).to be_a(Langchain::LLM::OpenAIResponse)
-      expect(response.model).to eq("text-embedding-ada-002")
+      expect(response.model).to eq("text-embedding-3-small")
       expect(response.embedding).to eq([-0.007097351, 0.0035200312, -0.0069700438])
       expect(response.prompt_tokens).to eq(2)
       expect(response.completion_tokens).to eq(nil)
@@ -74,7 +78,7 @@ RSpec.describe Langchain::LLM::OpenAI do
 
     context "with text and parameters" do
       let(:parameters) do
-        {parameters: {input: "Hello World", model: "text-embedding-ada-002", user: "id", dimensions: 1536}}
+        {parameters: {input: "Hello World", model: "text-embedding-ada-002", user: "id"}}
       end
 
       it "returns an embedding" do
@@ -101,18 +105,72 @@ RSpec.describe Langchain::LLM::OpenAI do
       end
 
       context "when dimension is provided" do
+        let(:dimension_size) { 1536 }
+
+        let(:parameters) do
+          {parameters: {input: "Hello World", model: model, dimensions: dimension_size}}
+        end
+
         let(:subject) do
           described_class.new(api_key: "123", default_options: {
             embeddings_model_name: model,
             dimension: dimension_size
           })
         end
-        let(:dimension_size) { 512 }
 
-        it "forwards the passed dimension" do
+        it "forwards the model's default dimension" do
+          allow(subject.client).to receive(:embeddings).with(parameters).and_return(response)
           subject.embed(text: "Hello World", model: model)
 
           expect(subject.client).to have_received(:embeddings).with(parameters)
+        end
+      end
+    end
+
+    Langchain::LLM::OpenAI::EMBEDDING_SIZES.each do |model_key, dimensions|
+      model = model_key.to_s.delete(":") # Convertir el símbolo del modelo a string
+
+      context "when using model #{model}" do
+        let(:text) { "Hello World" }
+        let(:result) { [0.001, 0.002, 0.003] } # Ejemplo de resultado esperado
+
+        let(:base_parameters) do
+          {
+            input: text,
+            model: model
+          }
+        end
+
+        let(:expected_parameters) do
+          # Si el modelo requiere `:dimensions`, inclúyelo en los parámetros esperados
+          if model == "text-embedding-3-small" || model == "text-embedding-3-large"
+            base_parameters.merge({dimensions: dimensions})
+          else
+            base_parameters
+          end
+        end
+
+        let(:response) do
+          {
+            "object" => "list",
+            "model" => model,
+            "data" => [{"object" => "embedding", "index" => 0, "embedding" => result}],
+            "usage" => {"prompt_tokens" => 2, "total_tokens" => 2}
+          }
+        end
+
+        before do
+          allow(subject.client).to receive(:embeddings).with(parameters: expected_parameters).and_return(response)
+        end
+
+        it "generates an embedding using #{model}" do
+          embedding_response = subject.embed(text: text, model: model)
+
+          expect(embedding_response).to be_a(Langchain::LLM::OpenAIResponse)
+          expect(embedding_response.model).to eq(model)
+          expect(embedding_response.embedding).to eq(result)
+          expect(embedding_response.prompt_tokens).to eq(2)
+          expect(embedding_response.total_tokens).to eq(2)
         end
       end
     end

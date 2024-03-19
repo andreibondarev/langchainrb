@@ -1,4 +1,3 @@
-require "mail"
 require "uri"
 
 module Langchain

@@ -51,6 +51,19 @@ RSpec.describe Langchain::Vectorsearch::Elasticsearch do
     end
   end
 
+  describe "#remove_texts" do
+    it "removes respective document" do
+      es_body = [
+        {delete: {_index: "langchain", _id: 1}}
+      ]
+
+      allow_any_instance_of(::Elasticsearch::Client).to receive(:bulk).with(body: es_body)
+      expect_any_instance_of(::Elasticsearch::Client).to receive(:bulk).with(body: es_body).once
+
+      subject.remove_texts(ids: [1])
+    end
+  end
+
   describe "#default_vector_settings" do
     it "returns default vector settings" do
       expect(subject.default_vector_settings).to eq({type: "dense_vector", dims: 384})
