@@ -30,6 +30,10 @@ module Langchain::LLM
         .merge(embedding_model_name: embedding_model)
     end
 
+    def complete(prompt:, **params)
+      raise "AwsBedrock::AnthropicMessages only supports chat() for all Anthropic completions. Use AwsBedrock instead for Anthropic Text Completions API."
+    end
+
     def chat(system: nil, messages: [], **params)
       raise ArgumentError.new("messages argument is required") if messages.empty?
 
