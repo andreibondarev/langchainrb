@@ -34,10 +34,10 @@ module Langchain::LLM
     #
     # @param api_key [String] The API key to use
     # @param client_options [Hash] Options to pass to the OpenAI::Client constructor
-    def initialize(api_key:, llm_options: {}, default_options: {})
+    def initialize(api_key:, llm_options: {}, default_options: {}, &llm_block)
       depends_on "ruby-openai", req: "openai"
 
-      @client = ::OpenAI::Client.new(access_token: api_key, **llm_options)
+      @client = ::OpenAI::Client.new(access_token: api_key, **llm_options, &llm_block)
 
       @defaults = DEFAULTS.merge(default_options)
     end
