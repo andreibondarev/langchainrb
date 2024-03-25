@@ -89,6 +89,13 @@ module Langchain::Vectorsearch
       upsert_texts(texts: texts, ids: ids)
     end
 
+    # Remove a list of texts from the index
+    # @param ids [Array<Integer>] The ids of the texts to remove from the index
+    # @return [Integer] The number of texts removed from the index
+    def remove_texts(ids:)
+      @db[table_name.to_sym].where(id: ids).delete
+    end
+
     # Create default schema
     def create_default_schema
       db.run "CREATE EXTENSION IF NOT EXISTS vector"

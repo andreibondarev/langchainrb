@@ -16,6 +16,8 @@ loader.inflector.inflect(
   "json" => "JSON",
   "jsonl" => "JSONL",
   "llm" => "LLM",
+  "mistral_ai" => "MistralAI",
+  "mistral_ai_response" => "MistralAIResponse",
   "openai" => "OpenAI",
   "openai_validator" => "OpenAIValidator",
   "openai_response" => "OpenAIResponse",
@@ -32,6 +34,11 @@ loader.collapse("#{__dir__}/langchain/tool/google_search")
 loader.collapse("#{__dir__}/langchain/tool/ruby_code_interpreter")
 loader.collapse("#{__dir__}/langchain/tool/weather")
 loader.collapse("#{__dir__}/langchain/tool/wikipedia")
+
+# RubyCodeInterpreter does not work with Ruby 3.3;
+# https://github.com/ukutaht/safe_ruby/issues/4
+loader.ignore("#{__dir__}/langchain/tool/ruby_code_interpreter") if RUBY_VERSION >= "3.3.0"
+
 loader.setup
 
 # Langchain.rb a is library for building LLM-backed Ruby applications. It is an abstraction layer that sits on top of the emerging AI-related tools that makes it easy for developers to consume and string those services together.

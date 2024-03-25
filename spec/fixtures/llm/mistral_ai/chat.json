@@ -1,0 +1,20 @@
+{
+  "id": "5e405d7b73134087a8e915d6cdfcb163",
+  "object": "chat.completion",
+  "created": 1710807304,
+  "model": "mistral-medium",
+  "choices": [{
+    "index": 0,
+    "message": {
+      "role": "assistant",
+      "content": "Hello! I'm just a computer program, so I don't have feelings, but I'm here to help you with any questions or problems you have to the best of my ability. How can I assist you today?"
+    },
+    "finish_reason": "stop",
+    "logprobs": null
+  }],
+  "usage": {
+    "prompt_tokens": 14,
+    "total_tokens": 61,
+    "completion_tokens": 47
+  }
+}
