@@ -17,7 +17,7 @@ module Langchain
         ::PDF::Reader
           .new(StringIO.new(data.read))
           .pages
-          .map(&:text)
+          .map { |page| page.text.gsub(/\s+/, ' ') }
           .join("\n\n")
       end
     end
