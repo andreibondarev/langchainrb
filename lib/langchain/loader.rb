@@ -78,6 +78,7 @@ module Langchain
     # @return [Data] data that was loaded
     def load(&block)
       return process_data(load_from_url, &block) if url?
+
       return load_from_directory(&block) if directory?
 
       process_data(load_from_path, &block)
@@ -97,10 +98,16 @@ module Langchain
 
     def load_from_directory(&block)
       Dir.glob(File.join(@path, "**/*")).map do |file|
+        # Skip sub-directories as the files in those sub-directories are already included in the list iterated on.
+        next if File.directory?(file)
+
+        opts = @options.dup
+        opts[:source] = file
+
         # Only load and add to result files with supported extensions
-        Langchain::Loader.new(file, @options).load(&block)
+        Langchain::Loader.new(file, opts).load(&block)
       rescue
-        UnknownFormatError nil
+        UnknownFormatError.new("Unknown format for file #{file}")
       end.flatten.compact
     end
 

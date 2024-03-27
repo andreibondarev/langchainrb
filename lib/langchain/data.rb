@@ -23,7 +23,7 @@ module Langchain
     # @param opts [Hash] options passed to the chunker
     # @return [Array<String>]
     def chunks(opts = {})
-      @chunker_klass.new(@data, **opts).chunks
+      @chunker_klass.new(@data, **opts).chunks(source: source)
     end
   end
 end

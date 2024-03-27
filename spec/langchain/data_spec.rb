@@ -15,6 +15,10 @@ RSpec.describe Langchain::Data do
       expect(chunks[0].text).to eq(split_data[0])
       expect(chunks[1].text).to eq(split_data[1])
       expect(chunks[2].text).to eq(split_data[2])
+
+      expect(chunks[0].source).to eq(source)
+      expect(chunks[1].source).to eq(source)
+      expect(chunks[2].source).to eq(source)
     end
 
     context "with an optional chunker class" do
