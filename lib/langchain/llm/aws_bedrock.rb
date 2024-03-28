@@ -11,13 +11,13 @@ module Langchain::LLM
   #
   class AwsBedrock < Base
     DEFAULTS = {
-      completion_model_name: "anthropic.claude-v2",
+      completion_model_name: "anthropic.claude-3-sonnet-20240229-v1:0",
       embedding_model_name: "amazon.titan-embed-text-v1",
       max_tokens_to_sample: 300,
       temperature: 1,
       top_k: 250,
       top_p: 0.999,
-      stop_sequences: ["\n\nHuman:"],
+      stop_sequences: [],
       anthropic_version: "bedrock-2023-05-31",
       return_likelihoods: "NONE",
       count_penalty: {
