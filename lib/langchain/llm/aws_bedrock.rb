@@ -11,13 +11,13 @@ module Langchain::LLM
   #
   class AwsBedrock < Base
     DEFAULTS = {
-      completion_model_name: "anthropic.claude-v2",
+      completion_model_name: "anthropic.claude-3-sonnet-20240229-v1:0",
       embedding_model_name: "amazon.titan-embed-text-v1",
       max_tokens_to_sample: 300,
       temperature: 1,
       top_k: 250,
       top_p: 0.999,
-      stop_sequences: ["\n\nHuman:"],
+      stop_sequences: [],
       anthropic_version: "bedrock-2023-05-31",
       return_likelihoods: "NONE",
       count_penalty: {
@@ -47,6 +47,7 @@ module Langchain::LLM
     }.freeze
 
     SUPPORTED_COMPLETION_PROVIDERS = %i[anthropic cohere ai21].freeze
+    SUPPORTED_CHAT_COMPLETION_PROVIDERS = %i[anthropic].freeze
     SUPPORTED_EMBEDDING_PROVIDERS = %i[amazon].freeze
 
     def initialize(completion_model: DEFAULTS[:completion_model_name], embedding_model: DEFAULTS[:embedding_model_name], aws_client_options: {}, default_options: {})
@@ -103,6 +104,26 @@ module Langchain::LLM
       })
 
       parse_response response
+    end
+
+    def chat(messages: [], system: nil, **params)
+      raise ArgumentError.new("messages argument is required") if messages.empty?
+
+      raise "Completion provider #{completion_provider} is not supported." unless SUPPORTED_CHAT_COMPLETION_PROVIDERS.include?(completion_provider)
+
+      parameters = compose_parameters_anthropic_messaging(params)
+
+      parameters[:system] = system if system
+      parameters[:messages] = messages
+
+      response = client.invoke_model({
+        model_id: @defaults[:completion_model_name],
+        body: parameters.to_json,
+        content_type: "application/json",
+        accept: "application/json"
+      })
+
+      AnthropicMessagesResponse.new(JSON.parse(response.body.string))
     end
 
     private
@@ -170,6 +191,19 @@ module Langchain::LLM
 
       {
         max_tokens_to_sample: default_params[:max_tokens_to_sample],
+        temperature: default_params[:temperature],
+        top_k: default_params[:top_k],
+        top_p: default_params[:top_p],
+        stop_sequences: default_params[:stop_sequences],
+        anthropic_version: default_params[:anthropic_version]
+      }
+    end
+
+    def compose_parameters_antrhopic_messaging(params)
+      default_params = @defaults.merge(params)
+
+      {
+        max_tokens: default_params[:max_tokens],
         temperature: default_params[:temperature],
         top_k: default_params[:top_k],
         top_p: default_params[:top_p],
