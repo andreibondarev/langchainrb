@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "tiktoken_ruby"
+# require "tiktoken_ruby"
 
 module Langchain
   module Utils

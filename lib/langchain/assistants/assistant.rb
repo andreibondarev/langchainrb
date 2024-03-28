@@ -19,7 +19,7 @@ module Langchain
       tools: [],
       instructions: nil
     )
-      raise ArgumentError, "Invalid LLM; currently only Langchain::LLM::OpenAI is supported" unless llm.instance_of?(Langchain::LLM::OpenAI)
+      raise ArgumentError, "Invalid LLM; currently only Langchain::LLM::OpenAI and Langchain::LLM::GoogleGemini are supported" unless [Langchain::LLM::OpenAI, Langchain::LLM::GoogleGemini].include?(llm.class) 
       raise ArgumentError, "Thread must be an instance of Langchain::Thread" unless thread.is_a?(Langchain::Thread)
       raise ArgumentError, "Tools must be an array of Langchain::Tool::Base instance(s)" unless tools.is_a?(Array) && tools.all? { |tool| tool.is_a?(Langchain::Tool::Base) }
 
@@ -30,7 +30,10 @@ module Langchain
 
       # The first message in the thread should be the system instructions
       # TODO: What if the user added old messages and the system instructions are already in there? Should this overwrite the existing instructions?
-      add_message(role: "system", content: instructions) if instructions
+      # add_message(role: "system", content: instructions) if instructions
+
+      # TODO: Figure out what to do with Google Gemini
+      # add_message(role: "user", content: instructions) if instructions
     end
 
     # Add a user message to the thread
@@ -54,11 +57,15 @@ module Langchain
 
       while running
         # TODO: I think we need to look at all messages and not just the last one.
-        case (last_message = thread.messages.last).role
-        when "system"
+
+        # TODO: Fix the following error when thread.messages is empty
+        # /Users/andrei/Code/langchain/lib/langchain/assistants/assistant.rb:60:in `run': undefined method `role' for nil (NoMethodError)
+        last_message = thread.messages.last
+
+        if last_message.role == "system"
           # Do nothing
           running = false
-        when "assistant"
+        elsif ["assistant", "model"].include?(last_message.role)
           if last_message.tool_calls.any?
             if auto_tool_execution
               run_tools(last_message.tool_calls)
@@ -71,11 +78,11 @@ module Langchain
             # Do nothing
             running = false
           end
-        when "user"
+        elsif last_message.role == "user"
           # Run it!
           response = chat_with_llm
 
-          if response.tool_calls
+          if response.tool_calls.any?
             # Re-run the while(running) loop to process the tool calls
             running = true
             add_message(role: response.role, tool_calls: response.tool_calls)
@@ -84,12 +91,12 @@ module Langchain
             running = false
             add_message(role: response.role, content: response.chat_completion)
           end
-        when "tool"
+        elsif last_message.role == "tool"
           # Run it!
           response = chat_with_llm
           running = true
 
-          if response.tool_calls
+          if response.tool_calls.any?
             add_message(role: response.role, tool_calls: response.tool_calls)
           elsif response.chat_completion
             add_message(role: response.role, content: response.chat_completion)
@@ -117,7 +124,7 @@ module Langchain
     # @return [Array<Langchain::Message>] The messages in the thread
     def submit_tool_output(tool_call_id:, output:)
       # TODO: Validate that `tool_call_id` is valid
-      add_message(role: "tool", content: output, tool_call_id: tool_call_id)
+      add_message(role: "function", content: output, tool_call_id: tool_call_id)
     end
 
     private
@@ -126,10 +133,12 @@ module Langchain
     #
     # @return [Langchain::LLM::BaseResponse] The LLM response object
     def chat_with_llm
-      params = {messages: thread.openai_messages}
+      # params = {messages: thread.openai_messages}
+      params = {messages: thread.google_gemini_messages}
 
       if tools.any?
-        params[:tools] = tools.map(&:to_openai_tools).flatten
+        # params[:tools] = tools.map(&:to_openai_tools).flatten
+        params[:tools] = tools.map(&:to_google_gemini_tools).flatten
         # TODO: Not sure that tool_choice should always be "auto"; Maybe we can let the user toggle it.
         params[:tool_choice] = "auto"
       end
@@ -143,11 +152,16 @@ module Langchain
     def run_tools(tool_calls)
       # Iterate over each function invocation and submit tool output
       tool_calls.each do |tool_call|
-        tool_call_id = tool_call.dig("id")
+        # Use the OpenAI "id" OR Google Gemini function name
+        tool_call_id = tool_call.dig("id") || tool_call.dig("functionCall", "name")
 
-        function_name = tool_call.dig("function", "name")
-        tool_name, method_name = function_name.split("-")
-        tool_arguments = JSON.parse(tool_call.dig("function", "arguments"), symbolize_names: true)
+        # Dig OpenAI format OR Google Gemini format
+        function_name = tool_call.dig("function", "name") || tool_call.dig("functionCall", "name")
+        # dash or underscore?
+        tool_name, method_name = function_name.split("_")
+
+        # tool_arguments = JSON.parse(tool_call.dig("function", "arguments"), symbolize_names: true)
+        tool_arguments = tool_call.dig("functionCall", "args").transform_keys(&:to_sym)
 
         tool_instance = tools.find do |t|
           t.name == tool_name
@@ -160,7 +174,7 @@ module Langchain
 
       response = chat_with_llm
 
-      if response.tool_calls
+      if response.tool_calls.any?
         add_message(role: response.role, tool_calls: response.tool_calls)
       elsif response.chat_completion
         add_message(role: response.role, content: response.chat_completion)

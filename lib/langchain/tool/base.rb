@@ -87,9 +87,19 @@ module Langchain::Tool
 
     # Returns the tool as a list of OpenAI formatted functions
     #
-    # @return [Hash] tool as an OpenAI tool
+    # @return [Array<Hash>] List of hashes representing the tool as OpenAI formatted functions
     def to_openai_tools
       method_annotations
+    end
+
+    # Returns the tool as a list of Google Gemini formatted functions
+    #
+    # @return [Array<Hash>] List of hashes representing the tool as Google Gemini formatted functions
+    def to_google_gemini_tools
+      method_annotations.map do |annotation|
+        # Slice out only the content of the "function" key
+        annotation["function"]
+      end
     end
 
     # Executes the tool and returns the answer

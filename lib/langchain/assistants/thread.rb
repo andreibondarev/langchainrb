@@ -20,6 +20,13 @@ module Langchain
       messages.map(&:to_openai_format)
     end
 
+    # Convert the thread to a Google Gemini API-compatible array of hashes
+    # 
+    # @return [Array<Hash>] The thread as a Google Gemini API-compatible array of hashes
+    def google_gemini_messages
+      messages.map(&:to_google_gemini_format)
+    end
+
     # Add a message to the thread
     #
     # @param message [Langchain::Message] The message to add
