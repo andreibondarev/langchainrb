@@ -607,6 +607,19 @@ RSpec.describe Langchain::LLM::OpenAI do
         }.to raise_error(ArgumentError, "'tool_choice' is only allowed when 'tools' are specified.")
       end
     end
+
+    context "with max_tokens_to_sample" do
+      let(:max_tokens_to_sample) { 50000 }
+      let(:parameters) { {parameters: {n: n, messages: history, model: model, temperature: temperature, max_tokens: max_tokens_to_sample}} }
+
+      it "translates max_tokens_to_sample to max_tokens" do
+        allow(subject.client).to receive(:chat).and_return(response)
+
+        subject.chat(messages: history, max_tokens_to_sample: max_tokens_to_sample)
+
+        expect(subject.client).to have_received(:chat).with(parameters)
+      end
+    end
   end
 
   describe "#summarize" do

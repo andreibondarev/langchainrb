@@ -112,6 +112,7 @@ module Langchain::LLM
       logprobs: nil,
       top_logprobs: nil,
       max_tokens: nil,
+      max_tokens_to_sample: nil,
       n: defaults[:n],
       presence_penalty: nil,
       response_format: nil,
@@ -128,6 +129,8 @@ module Langchain::LLM
       raise ArgumentError.new("messages argument is required") if messages.empty?
       raise ArgumentError.new("model argument is required") if model.empty?
       raise ArgumentError.new("'tool_choice' is only allowed when 'tools' are specified.") if tool_choice && tools.empty?
+
+      max_tokens ||= max_tokens_to_sample
 
       parameters = {
         messages: messages,
