@@ -1,0 +1,114 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.openai.com/v1/chat/completions
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"role":"user","content":"Extract James is 25 years old"}],"model":"gpt-3.5-turbo","n":1,"temperature":0.0,"tools":[{"type":"function","function":{"name":"Userdetails","description":"Correctly
+        extracted `UserDetails` with all the required parameters with correct types","parameters":{"type":"object","title":"User
+        Details","properties":{"name":{"type":"string"},"age":{"type":"integer"}},"required":["name","age"]}}}]}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer <API_KEY_PLACEHOLDER>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 15 Apr 2024 18:38:02 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - no-cache, must-revalidate
+      Openai-Model:
+      - gpt-3.5-turbo-0125
+      Openai-Organization:
+      - user-jtftkqrbreteg5pmdrfzchv6
+      Openai-Processing-Ms:
+      - '1328'
+      Openai-Version:
+      - '2020-10-01'
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      X-Ratelimit-Limit-Requests:
+      - '10000'
+      X-Ratelimit-Limit-Tokens:
+      - '60000'
+      X-Ratelimit-Remaining-Requests:
+      - '9999'
+      X-Ratelimit-Remaining-Tokens:
+      - '59975'
+      X-Ratelimit-Reset-Requests:
+      - 8.64s
+      X-Ratelimit-Reset-Tokens:
+      - 25ms
+      X-Request-Id:
+      - req_16c7213f9dfd86afe0251f4a367e1eba
+      Cf-Cache-Status:
+      - DYNAMIC
+      Set-Cookie:
+      - __cf_bm=sh3hzgCHdAZbOqW8zSVmlDYKU9cgt1dumHc4gLbPTEk-1713206282-1.0.1.1-RAHeIeR3ncFBnCdhsDw_bLd.As5k9m2ZsC9DKWDVfyl1DtMMsDSmZajoFmBist3LEqi.IV_8yNI6TuTquRF34Q;
+        path=/; expires=Mon, 15-Apr-24 19:08:02 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=QTSiU5bhQzkvN0i2XD3KRAyZnYtCqBCDxCau.FQSQbE-1713206282025-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      Server:
+      - cloudflare
+      Cf-Ray:
+      - 874e0cd42ff43dd9-MIA
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: |
+        {
+          "id": "chatcmpl-9ELVJA40SXt5JUPEKS6nAQw51pXIn",
+          "object": "chat.completion",
+          "created": 1713206281,
+          "model": "gpt-3.5-turbo-0125",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": null,
+                "tool_calls": [
+                  {
+                    "id": "call_1Wt2ewfKmufe4SSdZinKxtuL",
+                    "type": "function",
+                    "function": {
+                      "name": "Userdetails",
+                      "arguments": "{\"name\": \"James\", \"age\": 25}"
+                    }
+                  }
+                ]
+              },
+              "logprobs": null,
+              "finish_reason": "tool_calls"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 69,
+            "completion_tokens": 33,
+            "total_tokens": 102
+          },
+          "system_fingerprint": "fp_c2295e73ad"
+        }
+  recorded_at: Mon, 15 Apr 2024 18:38:01 GMT
+recorded_with: VCR 6.2.0

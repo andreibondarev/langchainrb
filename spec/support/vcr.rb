@@ -10,7 +10,7 @@ VCR.configure do |config|
     match_requests_on: %i[method uri body]
   }
 
-  # config.filter_sensitive_data("<OPENAI KEY>") { IdentityClient.configs.fetch(:default).host }
+  config.filter_sensitive_data("<API_KEY_PLACEHOLDER>") { ENV.fetch("OPENAI_API_KEY") }
 end
 
 RSpec.configure do |config|

@@ -55,5 +55,13 @@ module Langchain::LLM
     def total_tokens
       raw_response.dig("usage", "total_tokens")
     end
+
+    def function_responses
+      tool_calls&.map { |tool_call| tool_call.dig("function") }
+    end
+
+    def by_function_name(function_name)
+      function_responses&.find { |res| res.dig("name") == function_name }&.dig("arguments")
+    end
   end
 end
