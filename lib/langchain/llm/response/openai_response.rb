@@ -28,6 +28,13 @@ module Langchain::LLM
       chat_completions&.dig(0, "message", "tool_calls")
     end
 
+    # @return [Hash] JSON schema structured response
+    def response_schema
+      if tool_calls
+        JSON.parse(tool_calls.first.dig("function", "arguments"))
+      end
+    end
+
     def embedding
       embeddings&.first
     end

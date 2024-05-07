@@ -17,5 +17,11 @@ module Langchain::LLM
     def completion
       completions&.dig(0, "text")
     end
+
+    def tool_calls
+    end
+
+    def response_schema
+    end
   end
 end

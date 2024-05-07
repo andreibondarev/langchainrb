@@ -123,11 +123,13 @@ module Langchain::LLM
       tools: [],
       tool_choice: nil,
       user: nil,
+      response_schema: {},
       &block
     )
       raise ArgumentError.new("messages argument is required") if messages.empty?
       raise ArgumentError.new("model argument is required") if model.empty?
       raise ArgumentError.new("'tool_choice' is only allowed when 'tools' are specified.") if tool_choice && tools.empty?
+      raise ArgumentError.new("response_schema must be of type JSON") if response_schema && !response_schema.is_a?(Hash)
 
       parameters = {
         messages: messages,
@@ -147,7 +149,22 @@ module Langchain::LLM
       parameters[:stream] = stream if stream
       parameters[:temperature] = temperature if temperature
       parameters[:top_p] = top_p if top_p
-      parameters[:tools] = tools if tools.any?
+
+      if response_schema.any?
+        parameters[:tools] = [
+          {
+            type: "function",
+            function: {
+              name: "response_schema",
+              description: "Correctly extracted data with all the required parameters with correct types",
+              parameters: response_schema
+            }
+          }
+        ]
+      elsif tools.any?
+        parameters[:tools] = tools
+      end
+
       parameters[:tool_choice] = tool_choice if tool_choice
       parameters[:user] = user if user
 

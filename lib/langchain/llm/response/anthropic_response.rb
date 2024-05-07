@@ -14,6 +14,17 @@ module Langchain::LLM
       raw_response.dig("content", 0, "text")
     end
 
+    def tool_calls
+      raw_response.dig("content").select { |element| element["type"] == "tool_use" }
+    end
+
+    # @return [Hash] JSON schema structured response
+    def response_schema
+      if tool_calls.any?
+        tool_calls.first.dig("input", "properties")
+      end
+    end
+
     def completions
       [raw_response.dig("completion")]
     end

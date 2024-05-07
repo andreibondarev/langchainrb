@@ -36,6 +36,20 @@ module Langchain
         raise NotImplementedError
       end
 
+      # Returns tool calls from the model
+      #
+      # @return [Array]
+      def tool_calls
+        raise NotImplementedError
+      end
+
+      # Returns the JSON schema structured response
+      #
+      # @return [Hash] JSON schema structured response
+      def response_schema
+        raise NotImplementedError
+      end
+
       # Return the first embedding
       #
       # @return [Array<Float>]
@@ -82,6 +96,13 @@ module Langchain
       #
       # @return [Integer]
       def total_tokens
+        raise NotImplementedError
+      end
+
+      # Response's role parameter
+      #
+      # @return [String]
+      def role
         raise NotImplementedError
       end
     end
