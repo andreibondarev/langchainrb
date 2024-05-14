@@ -24,7 +24,7 @@ RSpec.describe Langchain::Tool::Weather do
 
   let(:response_farenheit) {
     OpenWeather::Models::City::Weather.new(
-      name: "Chicago",
+      name: "Chicago, IL",
       dt: Time.now,
       main: {
         feels_like: 85.12,
@@ -43,17 +43,17 @@ RSpec.describe Langchain::Tool::Weather do
       .and_return(response)
 
     allow(subject.client).to receive(:current_weather)
-      .with(city: "Chicago", units: "imperial")
+      .with(city: "Chicago, IL", units: "imperial")
       .and_return(response_farenheit)
   end
 
   describe "#execute" do
     it "returns current weather" do
-      expect(subject.execute(input: "Boston; standard")).to include("282.57")
+      expect(subject.current_weather(city: "Boston")).to include("282.57")
     end
 
     it "returns current weather with units" do
-      expect(subject.execute(input: "Chicago; imperial")).to include("88.56")
+      expect(subject.current_weather(city: "Chicago, IL", units: "imperial")).to include("88.56")
     end
   end
 end
