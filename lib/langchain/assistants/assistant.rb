@@ -26,9 +26,6 @@ module Langchain
       tools: [],
       instructions: nil
     )
-      unless SUPPORTED_LLMS.include?(llm.class)
-        raise ArgumentError, "Invalid LLM; currently only #{SUPPORTED_LLMS.join(", ")} are supported"
-      end
       raise ArgumentError, "Thread must be an instance of Langchain::Thread" unless thread.is_a?(Langchain::Thread)
       raise ArgumentError, "Tools must be an array of Langchain::Tool::Base instance(s)" unless tools.is_a?(Array) && tools.all? { |tool| tool.is_a?(Langchain::Tool::Base) }
 
