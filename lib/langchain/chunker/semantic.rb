@@ -21,8 +21,11 @@ module Langchain
         @prompt_template = prompt_template || default_prompt_template
       end
 
+      # Split the text into chunks
+      #
+      # @param [String] source
       # @return [Array<Langchain::Chunk>]
-      def chunks
+      def chunks(source: nil)
         prompt = prompt_template.format(text: text)
 
         # Replace static 50k limit with dynamic limit based on text length (max_tokens_to_sample)
@@ -33,7 +36,7 @@ module Langchain
           .map(&:strip)
           .reject(&:empty?)
           .map do |chunk|
-            Langchain::Chunk.new(text: chunk)
+            Langchain::Chunk.new(text: chunk, source: source)
           end
       end
 

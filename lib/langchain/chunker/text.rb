@@ -22,8 +22,11 @@ module Langchain
         @separator = separator
       end
 
+      # Split text into chunks
+      #
+      # @param [String] source
       # @return [Array<Langchain::Chunk>]
-      def chunks
+      def chunks(source: nil)
         splitter = Baran::CharacterTextSplitter.new(
           chunk_size: chunk_size,
           chunk_overlap: chunk_overlap,
@@ -31,7 +34,7 @@ module Langchain
         )
 
         splitter.chunks(text).map do |chunk|
-          Langchain::Chunk.new(text: chunk[:text])
+          Langchain::Chunk.new(text: chunk[:text], source: source)
         end
       end
     end
