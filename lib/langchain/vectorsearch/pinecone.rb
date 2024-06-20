@@ -93,7 +93,7 @@ module Langchain::Vectorsearch
           namespace: namespace,
           id: ids[i].to_s,
           values: llm.embed(text: text).embedding,
-          set_metadata: metadata
+          set_metadata: metadata || {content: text}
         )
       end
     end

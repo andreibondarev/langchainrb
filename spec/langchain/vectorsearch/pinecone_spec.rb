@@ -255,7 +255,7 @@ RSpec.describe Langchain::Vectorsearch::Pinecone do
     end
 
     it "updates texts" do
-      expect(subject.update_texts(texts: [text], ids: [123])).to eq([true])
+      expect(subject.update_texts(texts: [text], ids: [123], metadata: metadata)).to eq([true])
     end
   end
 
