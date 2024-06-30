@@ -101,6 +101,10 @@ module Langchain::LLM
     # @option params [Float] :top_p Use nucleus sampling.
     # @return [Langchain::LLM::AnthropicResponse] The chat completion
     def chat(params = {})
+      if params[:messages].all? { _1.is_a?(Langchain::Messages::ChatMessage) }
+        convert_chat_messages!(params)
+      end
+
       set_extra_headers! if params[:tools]
 
       parameters = chat_parameters.to_params(params)
@@ -115,6 +119,14 @@ module Langchain::LLM
     end
 
     private
+
+    # Convert ChatMessages to hashes,
+    # and extract system role messages to system
+    def convert_chat_messages!(params)
+      system_chat_messages, chat_messages_without_system = params[:messages].partition(&:system?)
+      params[:system] = ([params[:system]] + system_chat_messages.map(&:content)).compact.join("\n")
+      params[:messages] = chat_messages_without_system.map(&:to_hash)
+    end
 
     def set_extra_headers!
       ::Anthropic.configuration.extra_headers = {"anthropic-beta": "tools-2024-05-16"}

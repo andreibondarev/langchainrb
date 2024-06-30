@@ -1,0 +1,18 @@
+{
+  "id": "msg_019GYWSw4vibNJu5SuZAMmps",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-sonnet-20240229",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 34,
+    "output_tokens": 7
+  },
+  "content": [
+    {
+      "type": "text",
+      "text": "Boundless."
+    }
+  ],
+  "stop_reason": "end_turn"
+}
