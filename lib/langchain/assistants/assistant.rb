@@ -35,7 +35,8 @@ module Langchain
       llm:,
       thread: nil,
       tools: [],
-      instructions: nil
+      instructions: nil,
+      &block
     )
       unless SUPPORTED_LLMS.include?(llm.class)
         raise ArgumentError, "Invalid LLM; currently only #{SUPPORTED_LLMS.join(", ")} are supported"
@@ -47,6 +48,7 @@ module Langchain
       @tools = tools
       @instructions = instructions
       @state = :ready
+      @block = block
 
       raise ArgumentError, "Thread must be an instance of Langchain::Thread" unless @thread.is_a?(Langchain::Thread)
 
@@ -269,7 +271,7 @@ module Langchain
         # TODO: Not sure that tool_choice should always be "auto"; Maybe we can let the user toggle it.
       end
 
-      llm.chat(**params)
+      llm.chat(**params, &@block)
     end
 
     # Run the tools automatically
