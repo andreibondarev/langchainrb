@@ -123,9 +123,9 @@ module Langchain::LLM
       if block
         @response_chunks = []
         parameters[:stream] = proc do |chunk, _bytesize|
-          chunk_content = chunk.dig("choices", 0)
-          @response_chunks << chunk
-          yield chunk_content
+          wrapped_chunk = OpenAIResponse.new(chunk)
+          @response_chunks << wrapped_chunk
+          yield wrapped_chunk
         end
       end
 
@@ -136,7 +136,7 @@ module Langchain::LLM
       response = response_from_chunks if block
       reset_response_chunks
 
-      Langchain::LLM::OpenAIResponse.new(response)
+      OpenAIResponse.new(response)
     end
 
     # Generate a summary for a given text
@@ -174,34 +174,34 @@ module Langchain::LLM
     end
 
     def response_from_chunks
-      grouped_chunks = @response_chunks.group_by { |chunk| chunk.dig("choices", 0, "index") }
+      grouped_chunks = @response_chunks.group_by { |chunk| chunk.chat_completions.dig(0, "index") }
       final_choices = grouped_chunks.map do |index, chunks|
         {
           "index" => index,
           "message" => {
             "role" => "assistant",
-            "content" => chunks.map { |chunk| chunk.dig("choices", 0, "delta", "content") }.join,
+            "content" => chunks.map { |chunk| chunk.chat_completions.dig(0, "delta", "content") }.join,
             "tool_calls" => tool_calls_from_choice_chunks(chunks)
           }.compact,
-          "finish_reason" => chunks.last.dig("choices", 0, "finish_reason")
+          "finish_reason" => chunks.last.chat_completions.dig(0, "finish_reason")
         }
       end
-      @response_chunks.first&.slice("id", "object", "created", "model")&.merge({"choices" => final_choices})
+      @response_chunks.first&.raw_response&.slice("id", "object", "created", "model")&.merge({"choices" => final_choices})
     end
 
     def tool_calls_from_choice_chunks(choice_chunks)
-      tool_call_chunks = choice_chunks.select { |chunk| chunk.dig("choices", 0, "delta", "tool_calls") }
+      tool_call_chunks = choice_chunks.select { |chunk| chunk.chat_completions.dig(0, "delta", "tool_calls") }
       return nil if tool_call_chunks.empty?
 
-      tool_call_chunks.group_by { |chunk| chunk.dig("choices", 0, "delta", "tool_calls", 0, "index") }.map do |index, chunks|
+      tool_call_chunks.group_by { |chunk| chunk.chat_completions.dig(0, "delta", "tool_calls", 0, "index") }.map do |index, chunks|
         first_chunk = chunks.first
 
         {
-          "id" => first_chunk.dig("choices", 0, "delta", "tool_calls", 0, "id"),
-          "type" => first_chunk.dig("choices", 0, "delta", "tool_calls", 0, "type"),
+          "id" => first_chunk.chat_completions.dig(0, "delta", "tool_calls", 0, "id"),
+          "type" => first_chunk.chat_completions.dig(0, "delta", "tool_calls", 0, "type"),
           "function" => {
-            "name" => first_chunk.dig("choices", 0, "delta", "tool_calls", 0, "function", "name"),
-            "arguments" => chunks.map { |chunk| chunk.dig("choices", 0, "delta", "tool_calls", 0, "function", "arguments") }.join
+            "name" => first_chunk.chat_completions.dig(0, "delta", "tool_calls", 0, "function", "name"),
+            "arguments" => chunks.map { |chunk| chunk.chat_completions.dig(0, "delta", "tool_calls", 0, "function", "arguments") }.join
           }
         }
       end

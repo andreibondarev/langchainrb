@@ -13,11 +13,11 @@ module Langchain::LLM
     end
 
     def completion
-      completions&.dig(0, "message", "content")
+      completions&.dig(0, message_key, "content")
     end
 
     def role
-      completions&.dig(0, "message", "role")
+      completions&.dig(0, message_key, "role")
     end
 
     def chat_completion
@@ -25,8 +25,8 @@ module Langchain::LLM
     end
 
     def tool_calls
-      if chat_completions.dig(0, "message").has_key?("tool_calls")
-        chat_completions.dig(0, "message", "tool_calls")
+      if chat_completions.dig(0, message_key).has_key?("tool_calls")
+        chat_completions.dig(0, message_key, "tool_calls")
       else
         []
       end
@@ -58,6 +58,19 @@ module Langchain::LLM
 
     def total_tokens
       raw_response.dig("usage", "total_tokens")
+    end
+
+    private
+
+    def message_key
+      done? ? "message" : "delta"
+    end
+
+    # Check if OpenAI response is done streaming or not
+    #
+    # @return [Boolean] true if response is done, false otherwise
+    def done?
+      !!raw_response.dig("choices", 0).has_key?("message")
     end
   end
 end

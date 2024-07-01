@@ -647,7 +647,7 @@ RSpec.describe Langchain::LLM::OpenAI do
         end
 
         expect(response).to be_a(Langchain::LLM::OpenAIResponse)
-        expect(response.raw_response.dig("choices", 0, "message", "tool_calls")).to eq(expected_tool_calls)
+        expect(response.tool_calls).to eq(expected_tool_calls)
       end
     end
 
@@ -688,8 +688,8 @@ RSpec.describe Langchain::LLM::OpenAI do
     context "without tool_calls" do
       let(:chunks) do
         [
-          {"id" => "chatcmpl-abcdefg", "choices" => [{"index" => 0, "delta" => {"role" => "assistant", "content" => nil}}]},
-          {"id" => "chatcmpl-abcdefg", "choices" => [{"index" => 0, "delta" => {"role" => "assistant", "content" => "Hello"}}]}
+          Langchain::LLM::OpenAIResponse.new({"id" => "chatcmpl-abcdefg", "choices" => [{"index" => 0, "delta" => {"role" => "assistant", "content" => nil}}]}),
+          Langchain::LLM::OpenAIResponse.new({"id" => "chatcmpl-abcdefg", "choices" => [{"index" => 0, "delta" => {"role" => "assistant", "content" => "Hello"}}]})
         ]
       end
 
@@ -710,11 +710,9 @@ RSpec.describe Langchain::LLM::OpenAI do
           {"tool_calls" => [{"index" => 0, "function" => {"arguments" => "g\"}"}}]}
         ]
       end
-      let(:chunks) { chunk_deltas.map { |delta| {"id" => "chatcmpl-abcdefg", "choices" => [{"index" => 0, "delta" => delta}]} } }
+      let(:chunks) { chunk_deltas.map { |delta| Langchain::LLM::OpenAIResponse.new({"id" => "chatcmpl-abcdefg", "choices" => [{"index" => 0, "delta" => delta}]}) } }
       let(:expected_tool_calls) do
-        [
-          {"id" => "call_123456", "type" => "function", "function" => {"name" => "foo", "arguments" => "{\"value\": \"my_string\"}"}}
-        ]
+        [{"id" => "call_123456", "type" => "function", "function" => {"name" => "foo", "arguments" => "{\"value\": \"my_string\"}"}}]
       end
 
       it "returns the tool_calls" do
@@ -740,7 +738,7 @@ RSpec.describe Langchain::LLM::OpenAI do
           {"tool_calls" => [{"index" => 1, "function" => {"arguments" => "g\"}"}}]}
         ]
       end
-      let(:chunks) { chunk_deltas.map { |delta| {"id" => "chatcmpl-abcdefg", "choices" => [{"index" => 0, "delta" => delta}]} } }
+      let(:chunks) { chunk_deltas.map { |delta| Langchain::LLM::OpenAIResponse.new({"id" => "chatcmpl-abcdefg", "choices" => [{"index" => 0, "delta" => delta}]}) } }
       let(:expected_tool_calls) do
         [
           {"id" => "call_123", "type" => "function", "function" => {"name" => "foo", "arguments" => "{\"value\": \"my_string\"}"}},
