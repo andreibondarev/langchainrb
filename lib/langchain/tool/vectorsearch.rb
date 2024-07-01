@@ -14,7 +14,7 @@ module Langchain::Tool
     #    vectorsearch_tool = Langchain::Tool::Vectorsearch.new(vectorsearch: chroma)
     #
     NAME = "vectorsearch"
-    ANNOTATIONS_PATH = Langchain.root.join("./langchain/tool/#{NAME}/#{NAME}.json").to_path
+    FUNCTIONS = [:similarity_search]
 
     attr_reader :vectorsearch
 
@@ -22,6 +22,8 @@ module Langchain::Tool
     #
     # @param vectorsearch [Langchain::Vectorsearch::Base] Vectorsearch instance to use
     def initialize(vectorsearch:)
+      super()
+
       @vectorsearch = vectorsearch
     end
 

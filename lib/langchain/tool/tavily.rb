@@ -10,9 +10,11 @@ module Langchain::Tool
     #    tavily = Langchain::Tool::Tavily.new(api_key: ENV["TAVILY_API_KEY"])
     #
     NAME = "tavily"
-    ANNOTATIONS_PATH = Langchain.root.join("./langchain/tool/#{NAME}/#{NAME}.json").to_path
+    FUNCTIONS = [:search]
 
     def initialize(api_key:)
+      super()
+
       @api_key = api_key
     end
 

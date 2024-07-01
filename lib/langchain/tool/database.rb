@@ -10,7 +10,7 @@ module Langchain::Tool
     #     database = Langchain::Tool::Database.new(connection_string: "postgres://user:password@localhost:5432/db_name")
     #
     NAME = "database"
-    ANNOTATIONS_PATH = Langchain.root.join("./langchain/tool/#{NAME}/#{NAME}.json").to_path
+    FUNCTIONS = [:list_tables, :describe_tables, :dump_schema, :execute]
 
     attr_reader :db, :requested_tables, :excluded_tables
 
@@ -21,6 +21,8 @@ module Langchain::Tool
     # @param except_tables [Array<Symbol>] The tables to exclude. Will exclude none if empty.
     # @return [Database] Database object
     def initialize(connection_string:, tables: [], exclude_tables: [])
+      super()
+
       depends_on "sequel"
 
       raise StandardError, "connection_string parameter cannot be blank" if connection_string.empty?

@@ -13,9 +13,11 @@ module Langchain::Tool
     #     calculator = Langchain::Tool::Calculator.new
     #
     NAME = "calculator"
-    ANNOTATIONS_PATH = Langchain.root.join("./langchain/tool/#{NAME}/#{NAME}.json").to_path
+    FUNCTIONS = [:execute]
 
     def initialize
+      super()
+
       depends_on "eqn"
     end
 

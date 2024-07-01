@@ -12,9 +12,11 @@ module Langchain::Tool
     #    interpreter = Langchain::Tool::RubyCodeInterpreter.new
     #
     NAME = "ruby_code_interpreter"
-    ANNOTATIONS_PATH = Langchain.root.join("./langchain/tool/#{NAME}/#{NAME}.json").to_path
+    FUNCTIONS = [:execute]
 
     def initialize(timeout: 30)
+      super()
+
       depends_on "safe_ruby"
 
       @timeout = timeout

@@ -13,7 +13,7 @@ module Langchain::Tool
     #     search.execute(input: "What is the capital of France?")
     #
     NAME = "google_search"
-    ANNOTATIONS_PATH = Langchain.root.join("./langchain/tool/#{NAME}/#{NAME}.json").to_path
+    FUNCTIONS = [:execute]
 
     attr_reader :api_key
 
@@ -24,6 +24,8 @@ module Langchain::Tool
     # @return [Langchain::Tool::GoogleSearch] Google search tool
     #
     def initialize(api_key:)
+      super()
+
       depends_on "google_search_results"
 
       @api_key = api_key

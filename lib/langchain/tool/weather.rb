@@ -17,7 +17,7 @@ module Langchain::Tool
     #     weather.execute(input: "Boston, MA; imperial")
     #
     NAME = "weather"
-    ANNOTATIONS_PATH = Langchain.root.join("./langchain/tool/#{NAME}/#{NAME}.json").to_path
+    FUNCTIONS = [:execute]
 
     attr_reader :client, :units
 
@@ -26,6 +26,8 @@ module Langchain::Tool
     # @param api_key [String] Open Weather API key
     # @return [Langchain::Tool::Weather] Weather tool
     def initialize(api_key:, units: "metric")
+      super()
+
       depends_on "open-weather-ruby-client"
       require "open-weather-ruby-client"
 

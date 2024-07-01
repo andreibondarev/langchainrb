@@ -422,6 +422,8 @@ GEM
     tiktoken_ruby (0.0.9-x86_64-linux-musl)
     timeout (0.4.1)
     to_bool (2.0.0)
+    tool_tailor (0.1.3)
+      yard (~> 0.9.36)
     treetop (1.6.12)
       polyglot (~> 0.3)
     ttfunk (1.8.0)
@@ -502,6 +504,7 @@ DEPENDENCIES
   sequel (~> 5.68.0)
   standard (>= 1.35.1)
   tiktoken_ruby (~> 0.0.9)
+  tool_tailor
   vcr
   weaviate-ruby (~> 0.8.10)
   webmock

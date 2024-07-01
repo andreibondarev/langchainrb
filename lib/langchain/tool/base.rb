@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "tool_tailor"
+
 module Langchain::Tool
   # = Tools
   #
@@ -42,20 +44,30 @@ module Langchain::Tool
   #
   # == Adding Tools
   #
-  # 1. Create a new folder in lib/langchain/tool/your_tool_name/
-  # 2. Inside of this folder create a file with a class YourToolName that inherits from {Langchain::Tool::Base}
-  # 3. Add `NAME=` and `ANNOTATIONS_PATH=` constants in your Tool class
+  # 1. Inside lib/langchain/tool/ folder create a file with a class YourToolName that inherits from {Langchain::Tool::Base}
+  # 2. Add `NAME=` and `FUNCTIONS=` constants in your Tool class
   # 4. Implement various public methods in your tool class
-  # 5. Create a sidecar .json file in the same directory as your tool file annotating the methods in the Open API format
-  # 6. Add your tool to the {file:README.md}
+  # 5. Add your tool to the {file:README.md}
   class Base
     include Langchain::DependencyHelper
+
+    def initialize
+      validate_constants
+      validate_functions
+    end
 
     # Returns the NAME constant of the tool
     #
     # @return [String] tool name
     def name
-      self.class.const_get(:NAME)
+      self.class::NAME
+    end
+
+    # Returns the FUNCTIONS constant of the tool
+    #
+    # @return [String] tool functions
+    def functions
+      self.class::FUNCTIONS
     end
 
     def self.logger_options
@@ -97,11 +109,29 @@ module Langchain::Tool
     #
     # @return [Hash] Tool's method annotations
     def method_annotations
-      JSON.parse(
-        File.read(
-          self.class.const_get(:ANNOTATIONS_PATH)
-        )
-      )
+      functions.map do |function|
+        annotations = JSON.parse(ToolTailor.convert(self.class.instance_method(function)))
+        annotations["function"]["name"].prepend("#{name}__")
+
+        annotations
+      end
+    end
+
+    private
+
+    def validate_functions
+      functions.each do |function|
+        raise "Method #{function} not found for #{self.class}" unless respond_to?(function)
+      end
+    end
+
+    def validate_constants
+      validate_constant(:NAME)
+      validate_constant(:FUNCTIONS)
+    end
+
+    def validate_constant(constant)
+      raise "#{self.class} must define a #{constant} constant" unless self.class.const_defined?(constant)
     end
   end
 end

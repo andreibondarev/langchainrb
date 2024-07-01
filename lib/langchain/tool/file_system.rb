@@ -9,7 +9,7 @@ module Langchain::Tool
     #    file_system = Langchain::Tool::FileSystem.new
     #
     NAME = "file_system"
-    ANNOTATIONS_PATH = Langchain.root.join("./langchain/tool/#{NAME}/#{NAME}.json").to_path
+    FUNCTIONS = [:list_directory, :read_file, :write_to_file]
 
     def list_directory(directory_path:)
       Dir.entries(directory_path)

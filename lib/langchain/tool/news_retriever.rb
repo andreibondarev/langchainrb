@@ -10,9 +10,11 @@ module Langchain::Tool
     #    news_retriever = Langchain::Tool::NewsRetriever.new(api_key: ENV["NEWS_API_KEY"])
     #
     NAME = "news_retriever"
-    ANNOTATIONS_PATH = Langchain.root.join("./langchain/tool/#{NAME}/#{NAME}.json").to_path
+    FUNCTIONS = [:get_everything, :get_top_headlines, :get_sources]
 
     def initialize(api_key: ENV["NEWS_API_KEY"])
+      super()
+
       @api_key = api_key
     end
 

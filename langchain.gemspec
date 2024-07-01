@@ -80,4 +80,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "wikipedia-client", "~> 1.17.0"
   spec.add_development_dependency "power_point_pptx", "~> 0.1.0"
   spec.add_development_dependency "tiktoken_ruby", "~> 0.0.9"
+  spec.add_development_dependency "tool_tailor"
 end

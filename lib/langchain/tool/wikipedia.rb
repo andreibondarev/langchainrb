@@ -13,10 +13,12 @@ module Langchain::Tool
     #     wikipedia.execute(input: "The Roman Empire")
     #
     NAME = "wikipedia"
-    ANNOTATIONS_PATH = Langchain.root.join("./langchain/tool/#{NAME}/#{NAME}.json").to_path
+    FUNCTIONS = [:execute]
 
     # Initializes the Wikipedia tool
     def initialize
+      super()
+
       depends_on "wikipedia-client", req: "wikipedia"
     end
 
