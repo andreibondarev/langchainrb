@@ -538,6 +538,7 @@ gem install unicode -- --with-cflags="-Wno-incompatible-function-pointer-types"
 3. `bundle exec rake` to ensure that the tests pass and to run standardrb
 4. `bin/console` to load the gem in a REPL session. Feel free to add your own instances of LLMs, Tools, Agents, etc. and experiment with them.
 5. Optionally, install lefthook git hooks for pre-commit to auto lint: `gem install lefthook && lefthook install -f`
+6. Optionally, run tests for the components you will be working with using real KEYS and URLs. For example: `INTEGRATION_TESTS_ENABLED=true bundle exec rspec spec/integration/chain_of_thought_integration_spec.rb`
 
 ## Discord
 Join us in the [Langchain.rb](https://discord.gg/WDARp7J2n8) Discord server.
