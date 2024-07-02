@@ -417,6 +417,7 @@ Assistants are Agent-like objects that leverage helpful instructions, LLMs, tool
 | "tavily"     | A wrapper around Tavily AI                     | `ENV["TAVILY_API_KEY"]` (https://tavily.com/) |  |
 | "weather"  | Calls Open Weather API to retrieve the current weather        |      `ENV["OPEN_WEATHER_API_KEY"]` (https://home.openweathermap.org/api_keys)               | `gem "open-weather-ruby-client", "~> 0.3.0"`    |
 | "wikipedia"  | Calls Wikipedia API to retrieve the summary        |                                                               | `gem "wikipedia-client", "~> 1.17.0"`     |
+| "quicknode_bitcoin" | Interacts with the Quicknode Bitcoin API | `ENV["QUICKNODE_BITCOIN_URL"]` (https://dashboard.quicknode.com/endpoints) |  |
 
 ### Demos
 1. [Building an AI Assistant that operates a simulated E-commerce Store](https://www.loom.com/share/83aa4fd8dccb492aad4ca95da40ed0b2)

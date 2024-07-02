@@ -14,6 +14,7 @@ module Langchain::Tool
   # - {Langchain::Tool::RubyCodeInterpreter}: runs ruby code
   # - {Langchain::Tool::Weather}: gets current weather data
   # - {Langchain::Tool::Wikipedia}: search on Wikipedia
+  # - {Langchain::Tool::QuicknodeBitcoin}: interacts with quicknode bitcoin blockchain API
   #
   # == Usage
   #

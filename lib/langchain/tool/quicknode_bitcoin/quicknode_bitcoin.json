@@ -1,0 +1,552 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-decoderawtransaction",
+      "description": "Decodes the raw transaction and provides chain information in the form of JSON",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "hexstring": {
+            "type": "string",
+            "description": "The transaction hex string"
+          },
+          "iswitness": {
+            "type": "boolean",
+            "description": "A boolean value that indicates whether the transaction hex is a serialized witness transaction",
+            "enum": [true, false]
+          }
+        },
+        "required": ["hexstring"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-decodescript",
+      "description": "Decodes a hex-encoded script",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "hexstring": {
+            "type": "string",
+            "description": "The hex-encoded script"
+          }
+        },
+        "required": ["hexstring"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-estimatesmartfee",
+      "description": "Estimates the smart fee per kilobyte to be paid for a transaction and also returns the number of blocks for which the estimate is valid",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "conf_target": {
+            "type": "integer",
+            "description": "Confirmation target in blocks"
+          },
+          "estimate_mode": {
+            "type": "string",
+            "description": "The fee estimate mode",
+            "default": "CONSERVATIVE",
+            "enum": ["CONSERVATIVE", "ECONOMICAL"]
+          }
+        },
+        "required": ["conf_target"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getbestblockhash",
+      "description": "Returns the hash of the tip block in the most-work fully-validated chain",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getblockchaininfo",
+      "description": "Returns an object that contains information regarding blockchain processing in different states",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getblockcount",
+      "description": "Returns the height of the fully-validated chain. The genesis block has a height of 0",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getblockhash",
+      "description": "Returns the hash of the block provided its height",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "height": {
+            "type": "integer",
+            "description": "The height index of the block in the blockchain"
+          }
+        },
+        "required": ["height"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getblockheader",
+      "description": "Returns the header of the block given its hash",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "blockhash": {
+            "type": "string",
+            "description": "The hash of the block"
+          },
+          "verbose": {
+            "type": "boolean",
+            "description": "Determines whether to return a JSON object",
+            "default": true
+          }
+        },
+        "required": ["blockhash"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getblockstats",
+      "description": "Calculates per block statistics for a given window",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "hash_or_height": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "number" }
+            ],
+            "description": "The block hash or height of the target block. Can be a string hash or numeric block height."
+          },
+          "stats": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "JSON array of values to filter from"
+          }
+        },
+        "required": ["hash_or_height"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getblock",
+      "description": "Returns information about the block",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "blockhash": {
+            "type": "string",
+            "description": "The hash of the block"
+          },
+          "verbose": {
+            "type": "boolean",
+            "description": "default = 1, 0 for hex-encoded data, 1 for a JSON object, and 2 for JSON object with transaction data",
+            "default": true
+          }
+        },
+        "required": ["blockhash"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getchaintips",
+      "description": "Returns information about all known chaintips in the block tree, including the main chain as well as orphaned branches",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getchaintxstats",
+      "description": "Calculates data about the total number and rate of transactions in the chain",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "nblocks": {
+            "type": "number",
+            "description": "The window's size in number of blocks"
+          },
+          "blockhash": {
+            "type": "string",
+            "description": "The hash of the block that ends the window"
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getconnectioncount",
+      "description": "Returns the connection count to other nodes",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getdifficulty",
+      "description": "Returns the proof-of-work difficulty as a multiple of the minimum difficulty",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getindexinfo",
+      "description": "Returns the status of one or all available indexes actively running in the node",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "index_name": {
+            "type": "string",
+            "description": "Filters results for an index with a specific name"
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getmemoryinfo",
+      "description": "Returns an object that contains information regarding memory usage",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getmempoolancestors",
+      "description": "Returns all in-mempool ancestors for a transaction in the mempool",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "txid": {
+            "type": "string",
+            "description": "The transaction id, and it must be in mempool"
+          },
+          "verbose": {
+            "type": "boolean",
+            "description": "Determines whether to return a JSON object (true) or an array of transaction ids (false)",
+            "default": false
+          }
+        },
+        "required": ["txid"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getmempooldescendants",
+      "description": "Returns all in-mempool descendants for a transaction in the mempool",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "txid": {
+            "type": "string",
+            "description": "The transaction id, and it must be in mempool"
+          },
+          "verbose": {
+            "type": "boolean",
+            "description": "Determines whether to return a JSON object (true) or an array of transaction ids (false)",
+            "default": false
+          }
+        },
+        "required": ["txid"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getmempoolinfo",
+      "description": "Returns information about the active state of the TX memory pool",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getrawmempool",
+      "description": "Returns all transaction ids in the memory pool",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "verbose": {
+            "type": "boolean",
+            "description": "Determines whether to return a JSON object (true) or an array of transaction ids (false)",
+            "default": false
+          },
+          "mempool_sequence": {
+            "type": "boolean",
+            "description": "Determines whether to return a JSON object with transaction list and mempool sequence number attached",
+            "default": false
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-getrawtransaction",
+      "description": "Returns the raw transaction data",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "txid": {
+            "type": "string",
+            "description": "The transaction id"
+          },
+          "verbose": {
+            "type": "integer",
+            "description": "A numeric parameter that determines the output format",
+            "default": 0
+          },
+          "blockhash": {
+            "type": "string",
+            "description": "The block in which to look for the transaction"
+          }
+        },
+        "required": ["txid"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-gettxoutproof",
+      "description": "Ensures that the transactions are within a block and returns proof of transaction inclusion",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "txids": {
+            "type": "array",
+            "description": "An array of transaction hashes",
+            "items": {
+              "type": "string"
+            }
+          },
+          "blockhash": {
+            "type": "string",
+            "description": "If specified, looks for txids in the block with this hash"
+          }
+        },
+        "required": ["txids"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-gettxoutsetinfo",
+      "description": "Returns information about the unspent transaction output set",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "hash_type": {
+            "type": "string",
+            "description": "Specifies which UTXO set hash should be calculated",
+            "default": "hash_serialized_3",
+            "enum": ["hash_serialized_1", "hash_serialized_2", "hash_serialized_3"]
+          },
+          "hash_or_height": {
+            "type": ["string"],
+            "description": "The block hash or height of the target height"
+          },
+          "use_index": {
+            "type": "boolean",
+            "description": "Specifies whether to use coinstatsindex if available",
+            "default": true
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-gettxout",
+      "description": "Returns details about an unspent transaction output",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "txid": {
+            "type": "string",
+            "description": "The transaction id"
+          },
+          "n": {
+            "type": "number",
+            "description": "Vout number"
+          },
+          "include_mempool": {
+            "type": "boolean",
+            "description": "Whether to include the mempool",
+            "default": true
+          }
+        },
+        "required": ["txid", "n"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-sendrawtransaction",
+      "description": "Submits a raw transaction (serialized, hex-encoded) to a node",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "hexstring": {
+            "type": "string",
+            "description": "The transaction hex string"
+          },
+          "maxfeerate": {
+            "type": ["string"],
+            "description": "Specifies the maximum fee rate for the transaction. Transactions with a fee rate higher than this value will be rejected. Set to 0 to accept any fee rate",
+            "default": "0.10"
+          }
+        },
+        "required": ["hexstring"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-submitpackage",
+      "description": "Submit a package of raw transactions (serialized, hex-encoded) to the local node",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "package": {
+            "type": "array",
+            "description": "An array of raw transactions",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["package"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-testmempoolaccept",
+      "description": "Returns the output of mempool acceptance tests, indicating if the mempool will accept serialized, hex-encoded raw transactions",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "rawtxs": {
+            "type": "array",
+            "description": "An array of raw transactions in the form of a hex string",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxfeerate": {
+            "type": ["string"],
+            "description": "Specifies the maximum fee rate for the transactions. Transactions with a fee rate higher than this value will be rejected. Set to 0 to accept any fee rate",
+            "default": "0.10"
+          }
+        },
+        "required": ["rawtxs"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-validateaddress",
+      "description": "Returns information about the given Bitcoin address",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "The Bitcoin address to validate"
+          }
+        },
+        "required": ["address"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "quicknode_bitcoin-verifymessage",
+      "description": "Verifies a signed message",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "The Bitcoin address to use for the signature"
+          },
+          "signature": {
+            "type": "string",
+            "description": "The signature provided by the signer in base 64 encoding"
+          },
+          "message": {
+            "type": "string",
+            "description": "The message that was signed"
+          }
+        },
+        "required": ["address", "signature", "message"]
+      }
+    }
+  }
+]
