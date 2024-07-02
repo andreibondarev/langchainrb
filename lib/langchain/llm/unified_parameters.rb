@@ -77,8 +77,8 @@ module Langchain::LLM
       @parameters.to_h
     end
 
-    def each(&)
-      to_params.each(&)
+    def each(&block)
+      to_params.each(&block)
     end
 
     def <=>(other)

@@ -7,7 +7,7 @@ module Langchain::Tool
     #
     # Usage:
     #    # Initialize the LLM that will be used to generate embeddings
-    #    ollama = Langchain::LLM::Ollama.new(url: ENV["OLLAMA_URL"]
+    #    ollama = Langchain::LLM::Ollama.new(url: ENV["OLLAMA_URL"])
     #    chroma = Langchain::Vectorsearch::Chroma.new(url: ENV["CHROMA_URL"], index_name: "my_index", llm: ollama)
     #
     #    # This tool can now be used by the Assistant
@@ -30,7 +30,7 @@ module Langchain::Tool
     # @param query [String] The query to search for
     # @param k [Integer] The number of results to return
     def similarity_search(query:, k: 4)
-      vectorsearch.similarity_search(query:, k: 4)
+      vectorsearch.similarity_search(query: query, k: k)
     end
   end
 end
