@@ -31,8 +31,10 @@ module Langchain::Tool
     end
 
     # Database Tool: Returns a list of tables in the database
+    #
+    # @return [String] List of tables
     def list_tables
-      db.tables
+      db.tables.join(", ")
     end
 
     # Database Tool: Returns the schema for a list of tables
@@ -59,6 +61,10 @@ module Langchain::Tool
       schema
     end
 
+    # Database Tool: Returns a table descripton
+    #
+    # @param table [String] The table to describe.
+    # @return [String] Database definition of the table
     def describe_table(table, schema)
       primary_key_columns = []
       primary_key_column_count = db.schema(table).count { |column| column[1][:primary_key] == true }
@@ -93,7 +99,7 @@ module Langchain::Tool
 
       db[input].to_a
     rescue Sequel::DatabaseError => e
-      Langchain.logger.error(e.message, for: self.class)
+      e.message
     end
   end
 end

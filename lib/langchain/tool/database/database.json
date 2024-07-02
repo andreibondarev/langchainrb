@@ -3,7 +3,7 @@
     "type": "function",
     "function": {
       "name": "database__describe_tables",
-      "description": "Database Tool: Returns the schema for a list of tables",
+      "description": "Database Tool: Returns the schema for a list of tables. Use this to determine the correct column names for a query.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -36,7 +36,7 @@
         "properties": {
           "input": {
             "type": "string",
-            "description": "SQL query to be executed"
+            "description": "SQL query to be executed. Never query for all the columns from a specific table, only ask for a the few relevant columns given the question. Pay attention to use only the column names that you can see in the schema description. Be careful to not query for columns that do not exist. Pay attention to which column is in which table. Also, qualify column names with the table name when needed."
           }
         },
         "required": ["input"]
